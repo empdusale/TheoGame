@@ -7,6 +7,8 @@ function GameMenu({location}){
 
     const[name,setName] = useState('');
     const[room,setRoom] = useState('');
+    const[users,setUsers] = useState([]);
+
     const ENDPOINT = 'localhost:5000'
 
     useEffect(()=> {
@@ -18,13 +20,24 @@ function GameMenu({location}){
         setName(name);
         setRoom(room);
         socket.emit('join',{name,room});
+        socket.emit('joinRoom',{name,room})
+        socket.on('UsersRoom',({room,users} )=>{
+            setUsers(users);
+            console.log(users)
+
+        })
 
     }, [ENDPOINT,location.search])
 
     return(
         <div className="container">
             <h1>Game menu </h1>
-    <h1>room : {room}</h1>
+            <h1>room : {room}</h1>
+            <div>{users.map(user =>
+                <div>{user.username}</div>
+                )}
+            </div>
+            
             
         </div>
     )
