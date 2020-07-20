@@ -1,5 +1,3 @@
-const {addRoom,getAllRoom,getUsersRoom} =  require('./room');
-
 let users = [];
 
 
@@ -25,8 +23,22 @@ function getRoomUsers(room){
     return users.filter(user => user.room === room)
 }
 
+function getAllRoom(){
+    let rooms = [];
+    users.map(user => {
+        let index = rooms.indexOf(user.room);
+        if (index === -1){
+            rooms.push(user.room)
+        }
+    })
+    return rooms
+}
+
 function getUser(id){
     return user.find(user => user.id === id)
 }
+function getAllUser(){
+    return users;
+}
 
-module.exports = { addUser,getUser,getRoomUsers,deletteUser}
+module.exports = { addUser,getUser,getRoomUsers,deletteUser,getAllRoom,getAllUser}

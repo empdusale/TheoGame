@@ -16,8 +16,9 @@ return(
         <Link onClick={event => (!name) ? event.preventDefault() : null} to={`/joinGame?name=${name}`}>
         <button className="btn btn-primary btn-lg btn-block" type="submit">Rejoindre une partie</button>
         </Link>
-        
+        <Link onClick={event => (!name) ? event.preventDefault() : null} to={`/gameMenu?name=${name}`}>
         <button className="btn btn-secondary btn-lg btn-block" type="submit">Creer une partie</button>
+        </Link>
     </div>
     
 )

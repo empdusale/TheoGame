@@ -8,13 +8,18 @@ function GameMenu({location}){
     const[name,setName] = useState('');
     const[room,setRoom] = useState('');
     const[users,setUsers] = useState([]);
+    const[rooms,setRooms] = useState([])
 
     const ENDPOINT = 'localhost:5000'
 
     useEffect(()=> {
-        const { name,room} = queryString.parse(location.search);
+        var { name, room} = queryString.parse(location.search);
 
         socket = io(ENDPOINT)
+        if(!room){
+        room = (Math.floor(Math.random() * 10000) + 10000).toString().substring(1);
+        console.log(room);
+        }
 
         
         setName(name);
@@ -22,6 +27,7 @@ function GameMenu({location}){
         socket.emit('join',{name,room});
         socket.emit('joinRoom',{name,room})
         socket.on('UsersRoom',({room,users} )=>{
+            console.log(users)
             setUsers(users);
             console.log(users)
 
