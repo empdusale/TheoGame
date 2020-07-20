@@ -1,7 +1,11 @@
 import React ,{useState,useEffect}from 'react'
 import queryString from 'query-string'
 import io from 'socket.io-client'
+import  { Redirect } from 'react-router-dom'
 let socket;
+let gameOn = false;
+
+
 
 function GameMenu({location}){
 
@@ -35,6 +39,10 @@ function GameMenu({location}){
 
     }, [ENDPOINT,location.search])
 
+    const startGame = () => {
+        gameOn = true;
+    }
+    
     return(
         <div className="container">
             <h1>Game menu </h1>
@@ -44,9 +52,13 @@ function GameMenu({location}){
                 )}
             </div>
             
+            <button onClick={() => startGame()} className="btn btn-primary" type="submit">Commencer le jeu</button>
+            
+            
             
         </div>
     )
 }
+
 
 export default GameMenu;
