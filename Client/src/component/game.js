@@ -1,13 +1,10 @@
 import React ,{useState,useEffect}from 'react'
 import queryString from 'query-string'
 import io from 'socket.io-client'
-import  { Redirect } from 'react-router-dom'
 let socket;
-let gameOn = false;
 
 
-
-function GameMenu({location}){
+function Game({location}){
 
     const[name,setName] = useState('');
     const[room,setRoom] = useState('');
@@ -20,11 +17,6 @@ function GameMenu({location}){
         var { name, room} = queryString.parse(location.search);
 
         socket = io(ENDPOINT)
-        if(!room){
-        room = (Math.floor(Math.random() * 10000) + 10000).toString().substring(1);
-        console.log(room);
-        }
-
         
         setName(name);
         setRoom(room);
@@ -38,7 +30,7 @@ function GameMenu({location}){
         })
         
         socket.on('gameStarted',()=> {
-            window.location = `http://localhost:3000/game?name=${name}&room=${room}`
+            window.location = 'http://localhost:3000/game?name:'
         })
 
     }, [ENDPOINT,location.search])
@@ -65,4 +57,4 @@ function GameMenu({location}){
 }
 
 
-export default GameMenu;
+export default Game;

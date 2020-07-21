@@ -1,3 +1,4 @@
+import{addRoom,addUserToRoom,getAllRoom} from './room'
 let users = [];
 
 
@@ -5,9 +6,9 @@ function addUser(id,username,room) {
     let user ={
         id,
         username,
-        room
+        room,  
     }
-
+    addUserToRoom(user,room);
     users.push(user);
     return user;
 
@@ -35,7 +36,7 @@ function getAllRoom(){
 }
 
 function getUser(id){
-    return user.find(user => user.id === id)
+    return users.find(user => user.id === id)
 }
 function getAllUser(){
     return users;

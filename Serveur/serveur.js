@@ -37,6 +37,11 @@ io.on('connection',(socket)=> {
 
     })
 
+    socket.on('startGame',()=>{
+        let user = getUser(socket.id);
+        io.to(user.room).emit('gameStarted')
+    })
+
     socket.on('disconnect',() => {
         let user = deletteUser(socket.id);
          
