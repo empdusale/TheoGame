@@ -5,7 +5,8 @@ function addUser(id,username,room) {
     let user ={
         id,
         username,
-        room
+        room,
+        
     }
     users.push(user);
     console.log('users add')
