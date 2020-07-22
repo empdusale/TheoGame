@@ -21,22 +21,26 @@ const JoinGame = ({location}) =>{
         axios.get(`http://localhost:5000/users/getRooms`)
         .then(res => {
             copyRooms = res.data
+            console.log('copyRoom :')
             console.log(copyRooms)
             setRooms(copyRooms);       
       }).then(()=> {
           
       })
-      console.log("exist room "+ existRoom(4000))
-      
-      
-        
+         
         
     },[room]);
 
 const existRoom= (roomid) => {
+    console.log('Rooms : ')
     console.log(rooms)
-    console.log(rooms.indexOf(roomid));
-    if (rooms.indexOf(roomid) === -1 ){
+    console.log('Index : ')
+    let roomTemp = []
+    rooms.map(room => roomTemp.push(room.roomId))
+    console.log('temps');
+    console.log(roomTemp);
+    console.log(rooms.map(function(e) { return e.hello; }).indexOf('stevie'));
+    if (roomTemp.indexOf(roomid) === -1 ){
         
         return false
     }

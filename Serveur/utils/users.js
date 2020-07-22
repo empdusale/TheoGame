@@ -1,4 +1,3 @@
-//var {addUserToRoom,getAllRoom} = require('./room') 
 let users = [];
 
 
@@ -6,10 +5,11 @@ function addUser(id,username,room) {
     let user ={
         id,
         username,
-        room,  
+        room
     }
-    //addUserToRoom(user,room);
     users.push(user);
+    console.log('users add')
+    console.log(users)
     return user;
 
 }
@@ -20,26 +20,19 @@ function deletteUser(id){
     }
 }
 
-function getRoomUsers(room){
-    return users.filter(user => user.room === room)
-}
 
-function getAllRoom(){
-    let rooms = [];
-    users.map(user => {
-        let index = rooms.indexOf(user.room);
-        if (index === -1){
-            rooms.push(user.room)
-        }
-    })
-    return rooms
-}
 
 function getUser(id){
-    return users.find(user => user.id === id)
+    console.log('users :')
+    console.log(users)
+    console.log(id)
+    let user = users.find(user => user.id === id)
+    console.log('USSSERR :')
+    console.log(user)
+    return user;
 }
 function getAllUser(){
     return users;
 }
 
-module.exports = { addUser,getUser,getRoomUsers,deletteUser,getAllRoom,getAllUser}
+module.exports = { addUser,getUser,deletteUser,getAllUser}

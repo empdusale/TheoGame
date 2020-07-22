@@ -1,7 +1,8 @@
 const express = require('express')
 const http = require('http');
 const socketio = require('socket.io')
-const{addUser,getUser,getRoomUsers,deletteUser,getAllUser} = require('./utils/users')
+const{addUser,getUser,deletteUser,getAllUser} = require('./utils/users')
+const{addUserToRoom,getUsersRoom, getAllRoom,deletteUserToRoom} =require('./utils/room')
 const usersRoute = require('./route/users')
 const cors = require('cors');
 
@@ -23,22 +24,30 @@ io.on('connection',(socket)=> {
 
     socket.on('joinRoom',({name,room}) => {
         let user = addUser(socket.id,name,room)
+        addUserToRoom(user,room);
+        console.log('Room : ')
         console.log(getAllUser());
         socket.join(user.room);
-        io.to(user.room).emit('UsersRoom',{room : user.room,
-        users : getRoomUsers(user.room) });
+        io.to(room).emit('UsersRoom',{room :user.room,
+        users : getUsersRoom(user.room) });
 
 
     })
 
     socket.on('join',({name ,room}) => {
-        console.log(name,room);
+        //console.log(name,room);
       
 
     })
 
     socket.on('joinGame',({name,pinGamme}) => {
-        //let user = addUser()
+        let user = addUser(socket.id,name,pinGamme)
+        addUserToRoom(user,pinGamme);
+        console.log('Game : ')
+        console.log(getAllUser());
+        socket.join(user.room);
+        io.to(user.room).emit('GamePlayer',{pinGamme : user.room,
+        users : getUsersRoom(user.room) });
     })
 
     socket.on('startGame',()=>{
@@ -47,13 +56,22 @@ io.on('connection',(socket)=> {
     })
 
     socket.on('disconnect',() => {
+       
         let user = deletteUser(socket.id);
+        console.log('USer delette :: ')
+        console.log(socket.id)
+        console.log(user);
+        
          
         if(user){
+            deletteUserToRoom(socket.id,user.room);
             io.to(user.room).emit('UsersRoom',{room : user.room,
-                users : getRoomUsers(user.room) });
+                users : getUsersRoom(user.room) });
+            io.to(user.room).emit('GamePlayer',{room : user.room,
+                users : getUsersRoom(user.room) });
         }
         console.log('un utilisateur vient de partir !!')
+        console.log(getAllRoom());
     })
 })
 const PORT = process.env.PORT || 5000;
