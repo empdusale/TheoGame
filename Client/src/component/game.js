@@ -55,7 +55,6 @@ class Game extends Component {
 
     componentDidMount() {
         var { name, pinGamme} = queryString.parse(this.state.location.search);
-        console.log('MOUNNNTT')
 
         socket = io(ENDPOINT)
         
