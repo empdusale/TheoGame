@@ -14,10 +14,10 @@ return(
         <input placeholder="Name" className="joinInput" type="text" onChange={(event) => setName(event.target.value)}/>
         <p></p>
         <Link onClick={event => (!name) ? event.preventDefault() : null} to={`/joinGame?name=${name}`}>
-        <button className="btn btn-primary btn-lg btn-block" type="submit">Rejoindre une partie</button>
+        <button className="btn btn-primary" type="submit">Rejoindre une partie</button>
         </Link>
         <Link onClick={event => (!name) ? event.preventDefault() : null} to={`/gameMenu?name=${name}`}>
-        <button className="btn btn-secondary btn-lg btn-block" type="submit">Creer une partie</button>
+        <button className="btn btn-secondary" type="submit">Creer une partie</button>
         </Link>
     </div>
     

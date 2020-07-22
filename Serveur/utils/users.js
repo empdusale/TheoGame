@@ -1,4 +1,4 @@
-import{addRoom,addUserToRoom,getAllRoom} from './room'
+//var {addUserToRoom,getAllRoom} = require('./room') 
 let users = [];
 
 
@@ -8,7 +8,7 @@ function addUser(id,username,room) {
         username,
         room,  
     }
-    addUserToRoom(user,room);
+    //addUserToRoom(user,room);
     users.push(user);
     return user;
 

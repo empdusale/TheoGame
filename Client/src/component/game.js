@@ -7,31 +7,24 @@ let socket;
 function Game({location}){
 
     const[name,setName] = useState('');
-    const[room,setRoom] = useState('');
+    const[pinGamme,setPinGamme] = useState('');
     const[users,setUsers] = useState([]);
     const[rooms,setRooms] = useState([])
 
     const ENDPOINT = 'localhost:5000'
 
     useEffect(()=> {
-        var { name, room} = queryString.parse(location.search);
+        var { name, pinGamme} = queryString.parse(location.search);
 
         socket = io(ENDPOINT)
         
         setName(name);
-        setRoom(room);
-        socket.emit('join',{name,room});
-        socket.emit('joinRoom',{name,room})
-        socket.on('UsersRoom',({room,users} )=>{
-            console.log(users)
+        setPinGamme(pinGamme);
+        socket.emit('joinGame',{name,pinGamme})
+        socket.on('GamePlayer',({pinGamme,users} )=>{
             setUsers(users);
-            console.log(users)
-
         })
         
-        socket.on('gameStarted',()=> {
-            window.location = 'http://localhost:3000/game?name:'
-        })
 
     }, [ENDPOINT,location.search])
 
@@ -41,14 +34,14 @@ function Game({location}){
     
     return(
         <div className="container">
-            <h1>Game menu </h1>
-            <h1>room : {room}</h1>
+            <h1>La partie Commence </h1>
+            
             <div>{users.map(user =>
-                <div>{user.username}</div>
+                <button>  {user.username}</button>
                 )}
             </div>
             
-            <button onClick={() => startGame()} className="btn btn-primary" type="submit">Commencer le jeu</button>
+            
             
             
             

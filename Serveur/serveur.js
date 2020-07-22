@@ -9,7 +9,7 @@ const app = express()
 const serveur = http.createServer(app);
 const io = socketio(serveur)
 
-const routrut = require('./route/route');
+
 const route  = require('./route/route');
 
 app.use(cors())
@@ -35,6 +35,10 @@ io.on('connection',(socket)=> {
         console.log(name,room);
       
 
+    })
+
+    socket.on('joinGame',({name,pinGamme}) => {
+        //let user = addUser()
     })
 
     socket.on('startGame',()=>{

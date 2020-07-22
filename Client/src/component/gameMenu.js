@@ -3,7 +3,7 @@ import queryString from 'query-string'
 import io from 'socket.io-client'
 import  { Redirect } from 'react-router-dom'
 let socket;
-let gameOn = false;
+
 
 
 
@@ -38,7 +38,7 @@ function GameMenu({location}){
         })
         
         socket.on('gameStarted',()=> {
-            window.location = `http://localhost:3000/game?name=${name}&room=${room}`
+            window.location = `http://localhost:3000/game?name=${name}&pinGamme=${room}`
         })
 
     }, [ENDPOINT,location.search])
