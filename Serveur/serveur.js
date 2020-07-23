@@ -70,7 +70,7 @@ io.on('connection',(socket)=> {
         userVote.nbDeVote++;
         user.voteFor = userVote.username;
         game.compteurVote++;
-        io.to(pinGamme).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(pinGamme)});
+        io.to(pinGamme).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(pinGamme),compteurQuestion : game.compteurQuestion});
 
     })
 

@@ -25,7 +25,7 @@ class Game extends Component {
             reponse :  "",
             aRepondu : false,
             compteurVote : 0,
-            compteurQuestion : null,
+            compteurQuestion : 1,
             compteurQuestionMax : null
 
             
@@ -63,6 +63,9 @@ class Game extends Component {
             aRepondu : true,
             
         })
+    }
+    goToRoom(e){
+        window.location = `http://localhost:3000/gameMenu?name=${this.state.name}&room=${this.state.pinGamme}`
     }
 
     changeQuestion(e){
@@ -132,7 +135,10 @@ class Game extends Component {
             </div>
                 )
         } 
-        else{
+        else {
+            console.log('ARepondu ======= '+ this.state.aRepondu)
+            console.log('compteurQuestion ======= '+ this.state.compteurQuestion)
+            console.log('compteurQuestionMax ======= '+ this.state.compteurQuestionMax)
             if(this.state.compteurVote === this.state.users.length){
                 return(
                     <div className="container">
@@ -167,6 +173,7 @@ class Game extends Component {
 
             }
         }
+        
     }
 }
 /*function Game({location}){
