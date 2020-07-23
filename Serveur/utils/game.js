@@ -1,4 +1,6 @@
 let games = [];
+let questions = require('../public/question');
+const tailleQuestion = questions.length;
 
 
 function getAllGames(){
@@ -12,9 +14,15 @@ function getGame(gameId){
 
 function createGame(gameId){
     let game = {
-        gameId : roomId,
-        users : []
+        gameId : gameId,
+        compteurQuestion : 0,
+        initQuestion : getQuestion().text,
+        currentQuestion : null,
+        users : [],
+        compteurVote : 0,
+
     }
+    game.currentQuestion = game.initQuestion;
     games.push(game)
     //return room
 }
@@ -32,6 +40,7 @@ function getUsersGame(gameId){
 }
 function addUserToGame(user,gameId){
     const index = games.findIndex(game => game.gameId === gameId);
+    console.log('indexxxxxx : '+index)
     if(index === -1){
         createGame(gameId)
         let game = games.find(game => game.gameId === gameId);
@@ -44,13 +53,18 @@ function addUserToGame(user,gameId){
    
 }
 
-function deletteUserToRoom(userId,gameId){
+function deletteUserToGame(userId,gameId){
     let game = games.find(game => game.gameId === gameId);
     let index = game.users.findIndex(user => user.id === userId);
     game.users.splice(index,1)[0];
 }
 
+function getQuestion(){
+    let question = questions[Math.floor(Math.random() * (3 - 0 + 1)) + 0];
+    console.log('la question est : '+ question.text);
+    return question;
+}
 
 module.exports = {
-    getAllGames,createGame,getUsersGame,deletteGame,addUserToGame,getGame,deletteUserToRoom
+    getAllGames,createGame,getUsersGame,deletteGame,addUserToGame,getGame,deletteUserToGame,getQuestion
 }

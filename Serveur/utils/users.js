@@ -6,6 +6,9 @@ function addUser(id,username,room) {
         id,
         username,
         room,
+        voteFor: null,
+        Bonus : true,
+        inGame : false
         
     }
     users.push(user);

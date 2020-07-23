@@ -3,6 +3,7 @@ const http = require('http');
 const socketio = require('socket.io')
 const{addUser,getUser,deletteUser,getAllUser} = require('./utils/users')
 const{addUserToRoom,getUsersRoom, getAllRoom,deletteUserToRoom} =require('./utils/room')
+const{getQuestion, addUserToGame,getUsersGame,deletteUserToGame, getAllGames, getGame} = require('./utils/game')
 const usersRoute = require('./route/users')
 const cors = require('cors');
 
@@ -42,18 +43,35 @@ io.on('connection',(socket)=> {
 
     socket.on('joinGame',({name,pinGamme}) => {
         let user = addUser(socket.id,name,pinGamme)
+        user.inGame = true;
+        addUserToGame(user,pinGamme);
         addUserToRoom(user,pinGamme);
         console.log('Game : ')
-        console.log(getAllUser());
+        console.log(getAllGames());
         socket.join(user.room);
+        console.log(getUsersGame(user.room))
+        console.log('question : '+ getGame(user.room).currentQuestion )
+        socket.emit('getCurentQuestion',{CurrentQuestion : getGame(user.room).currentQuestion})
         io.to(user.room).emit('GamePlayer',{pinGamme : user.room,
-        users : getUsersRoom(user.room) });
+        users : getUsersGame(user.room),
+        });
     })
 
     socket.on('startGame',()=>{
         let user = getUser(socket.id);
         io.to(user.room).emit('gameStarted')
     })
+
+    socket.on('aVoter',({pinGamme,reponse}) => {
+        let game = getGame(pinGamme);
+        game.compteurVote++;
+        io.to(pinGamme).emit('compteurVote',game.compteurVote);
+
+    })
+
+
+
+
 
     socket.on('disconnect',() => {
        
@@ -67,8 +85,11 @@ io.on('connection',(socket)=> {
             deletteUserToRoom(socket.id,user.room);
             io.to(user.room).emit('UsersRoom',{room : user.room,
                 users : getUsersRoom(user.room) });
-            io.to(user.room).emit('GamePlayer',{room : user.room,
-                users : getUsersRoom(user.room) });
+            if(user.inGame){
+                deletteUserToGame(socket.id,user.room);
+                io.to(user.room).emit('GamePlayer',{room : user.room,
+                    users : getUsersGame(user.room) });
+            }          
         }
         console.log('un utilisateur vient de partir !!')
         console.log(getAllRoom());

@@ -3,6 +3,7 @@ import queryString from 'query-string'
 import io from 'socket.io-client'
 let socket;
 
+
 const ENDPOINT = 'localhost:5000'
 
 class Game extends Component {
@@ -10,9 +11,8 @@ class Game extends Component {
         super(props)
 
         this.setUsers = this.setUsers.bind(this);
-        this.setName = this.setName.bind(this);
-        this.setPinGamme = this.setPinGamme.bind(this);
         this.changeQuestion = this.changeQuestion.bind(this)
+        this.setQuestion = this.setQuestion.bind(this);
         
 
         this.state = {
@@ -20,8 +20,12 @@ class Game extends Component {
             name :"",
             pinGamme :"",
             location :props.location,
-            question : "qui est le plus beau ?",
-            reponse :  ""
+            question : "",
+            reponse :  "",
+            aRepondu : false,
+            compteurVote : 0,
+
+            
         }
     }
     setUsers(users){
@@ -29,30 +33,19 @@ class Game extends Component {
         console.log('voici les users :')
         console.log(this.state.users)
     }
-    setName(name){
-      
-        this.setState({name : name})
-        console.log('this.state.name : '+ this.state.name);
-
-
-    }
-    setPinGamme(pinGamme){
-        this.setState({pinGamme : pinGamme})
+    setQuestion(question){
+        this.setState({question : question})
     }
 
     changeQuestion(e) {
-        this.setState({
-            question : "qui est le plus lourd ?"
-        })
+        socket.emit('aVoter',{pinGamme : this.state.pinGamme ,reponse : e.target.value})
         
         this.setState({
-            reponse : e.target.value
+            reponse : e.target.value,
+            aRepondu : true,
+            
         })
-
     }
-
-    
-
     componentDidMount() {
         var { name, pinGamme} = queryString.parse(this.state.location.search);
 
@@ -63,40 +56,71 @@ class Game extends Component {
             pinGamme : pinGamme
         })
         
+        socket.on('getCurentQuestion',({CurrentQuestion}) => {
+            console.log('QUESSSSSTION : '+ CurrentQuestion)
+            this.setQuestion(CurrentQuestion)
+
+        }
+
+        
+        )
+        socket.on('compteurVote',(compteur)=>{
+            this.setState({
+                compteurVote : compteur
+            })
+
+        })
         
         socket.emit('joinGame',{name,pinGamme})
         console.log('JOIN GAMME')
         socket.on('GamePlayer',({pinGamme,users} )=>{
             console.log('Game user ::')
+            console.log('GAMMMMEEE PLAYYYER')
             console.log(users)
             this.setUsers(users);
+            
+           
 
         })
 
         
       }
+      
     render( ){
-        return(
+        if(this.state.aRepondu === false){
+            return(
+                <div className="container">
+                <h1>La partie Commence </h1>
+                <br/>
+                <h3>{this.state.question}</h3>
+                <br/>
+                <ul className="list-group" >{this.state.users.map(user =>
+                    <li className="list-group-item">
+                    <button  type="button" className="btn btn-info" value={user.username} onClick={(e) => this.changeQuestion(e)} >  {user.username}</button>
+                    </li>
+                    )}
+                </ul>
+                <h2>{this.state.reponse}</h2>          
+            </div>
+                )
+
+        }
+        
+        else{
+            return(
             <div className="container">
-            <h1>La partie Commence </h1>
-            <br/>
-            <h3>{this.state.question}</h3>
-            <br/>
-            <ul className="list-group" >{this.state.users.map(user =>
-                <li className="list-group-item">
-                <button  type="button" className="btn btn-info" value={user.username} onClick={(e) => this.changeQuestion(e)} >  {user.username}</button>
-                </li>
-                )}
-            </ul>
-            <h2>{this.state.reponse}</h2>
+                <h1>vous avez répondu : {this.state.reponse}</h1>
+                <br/>
+                <h3>personne qui on voté : {this.state.compteurVote}/{this.state.users.length} </h3>
+
+
+
+            </div>
             
-            
-            
-            
-            
-        </div>
 
             )
+
+        }
 
 
 
