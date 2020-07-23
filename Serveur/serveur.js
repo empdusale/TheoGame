@@ -53,7 +53,7 @@ io.on('connection',(socket)=> {
         console.log('question : '+ getGame(user.room).currentQuestion )
         socket.emit('getCurentQuestion',{CurrentQuestion : getGame(user.room).currentQuestion})
         io.to(user.room).emit('GamePlayer',{pinGamme : user.room,
-        users : getUsersGame(user.room),
+        users : getUsersGame(user.room),compteurQuestion : getGame(user.room).compteurQuestion,compteurQuestionMax : getGame(user.room).compteurQuestionMax
         });
     })
 
@@ -64,9 +64,28 @@ io.on('connection',(socket)=> {
 
     socket.on('aVoter',({pinGamme,reponse}) => {
         let game = getGame(pinGamme);
+        let user = getUser(socket.id);
+        let userVote = getUser(reponse);
+        userVote.voterPar.push(user.name)
+        userVote.nbDeVote++;
+        user.voteFor = userVote.username;
         game.compteurVote++;
-        io.to(pinGamme).emit('compteurVote',game.compteurVote);
+        io.to(pinGamme).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(pinGamme)});
 
+    })
+
+    socket.on('nextQuestion',(pinGamme)=>{
+        let game = getGame(pinGamme);
+        game.compteurQuestion++
+        game.compteurVote = 0;
+        game.users.map(user => {
+            user.voteFor = '';
+            user.voterPar = [];
+            user.nbDeVote = 0;
+        })
+        game.CurrentQuestion = getQuestion().text;
+        io.to(pinGamme).emit('getCurentQuestion',{CurrentQuestion : game.CurrentQuestion })
+        io.to(pinGamme).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(pinGamme),compteurQuestion : game.compteurQuestion});
     })
 
 

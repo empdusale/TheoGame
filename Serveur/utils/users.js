@@ -7,6 +7,8 @@ function addUser(id,username,room) {
         username,
         room,
         voteFor: null,
+        voterPar : [], 
+        nbDeVote: 0,
         Bonus : true,
         inGame : false
         
@@ -27,12 +29,7 @@ function deletteUser(id){
 
 
 function getUser(id){
-    console.log('users :')
-    console.log(users)
-    console.log(id)
     let user = users.find(user => user.id === id)
-    console.log('USSSERR :')
-    console.log(user)
     return user;
 }
 function getAllUser(){

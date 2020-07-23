@@ -15,7 +15,8 @@ function getGame(gameId){
 function createGame(gameId){
     let game = {
         gameId : gameId,
-        compteurQuestion : 0,
+        compteurQuestion : 1,
+        compteurQuestionMax : 3,
         initQuestion : getQuestion().text,
         currentQuestion : null,
         users : [],
