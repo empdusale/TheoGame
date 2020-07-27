@@ -1,7 +1,7 @@
 import React ,{useState,useEffect}from 'react'
 import queryString from 'query-string'
 import io from 'socket.io-client'
-import  { Redirect } from 'react-router-dom'
+
 let socket;
 
 
@@ -44,6 +44,10 @@ function GameMenu({location}){
             setUser(user);
 
         })
+        socket.on('resetid',()=>{
+            setId(undefined)
+        })
+        
         
         socket.on('gameStarted',()=> {
             if(id == undefined){

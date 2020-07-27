@@ -130,6 +130,7 @@ class Game extends Component {
         })
     }
     goToRoom(e) {
+        console.log('IDDDDDD   GO   TO    ROOM  :: '+this.state.id)
         socket.emit('requetteGoToRoom',this.state.pinGamme);
     }
     
@@ -164,11 +165,13 @@ class Game extends Component {
         })
 
         socket.on('changeAdmin',({socket})=>{
+            console.log('entrer dans change admin')
             if(this.state.user.role == 'admin'){
                 console.log('nouvelle admin trouver')
                 this.setState({
                     id : socket 
                 })
+                console.log('nouvelle id : '+this.state.id)
             }
 
         })

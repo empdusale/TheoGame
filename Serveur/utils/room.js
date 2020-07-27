@@ -14,7 +14,8 @@ function addRoom(roomId){
     let room = {
         roomId : roomId,
         users : [],
-        userAdminSocket : null
+        userAdminSocket : null,
+        inGame : false
 
     }
     rooms.push(room)

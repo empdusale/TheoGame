@@ -2,7 +2,7 @@ const express = require('express')
 const http = require('http');
 const socketio = require('socket.io')
 const{addUser,getUser,deletteUser,getAllUser} = require('./utils/users')
-const{addUserToRoom,getUsersRoom, getAllRoom,deletteUserToRoom} =require('./utils/room')
+const{addUserToRoom,getUsersRoom, getAllRoom,deletteUserToRoom, getRoom} =require('./utils/room')
 const{getQuestion, addUserToGame,getUsersGame,deletteUserToGame, getAllGames, getGame,setUserTrier,createGame} = require('./utils/game')
 const usersRoute = require('./route/users')
 const cors = require('cors');
@@ -59,6 +59,8 @@ io.on('connection',(socket)=> {
     socket.on('startGame',({id,nbQuestion})=>{
         
         let user = getUser(socket.id);
+        let room = getRoom(user.room);
+        room.inGame = true;
         console.log('idddddd :::::::: '+id)
         if(id === undefined){
             createGame(user.room,socket.id,nbQuestion)
@@ -117,6 +119,8 @@ io.on('connection',(socket)=> {
     })
 
     socket.on('requetteGoToRoom',(pinGamme)=>{
+        let room = getRoom(pinGamme);
+        room.inGame = false;
         io.to(pinGamme).emit('goToRoom');
     })
     
@@ -130,9 +134,7 @@ io.on('connection',(socket)=> {
         
          
         if(user){
-            deletteUserToRoom(socket.id,user.room);
-            io.to(user.room).emit('UsersRoom',{room : user.room,
-                users : getUsersRoom(user.room) });
+            
             if(user.inGame){
                 let game = getGame(user.room);
                 deletteUserToGame(socket.id,user.room);
@@ -152,17 +154,49 @@ io.on('connection',(socket)=> {
                             game.users[0].role = 'admin'
                             console.log('User Avant envoi');
                             console.log(game.users)
+                            setUserTrier(user.room);
+                            io.to(user.room).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(user.room),compteurQuestion : game.compteurQuestion});
+                            console.log('AdminSocket : '+game.userAdminSocket);
                             io.to(user.room).emit('changeAdmin',{socket: game.userAdminSocket});
         
                         }
-                        setUserTrier(user.room);
-                        io.to(user.room).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(user.room),compteurQuestion : game.compteurQuestion});
-                                           
+                        else{
+                            setUserTrier(user.room);
+                            io.to(user.room).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(user.room),compteurQuestion : game.compteurQuestion});
+
+                        }                      
+                    }
+                }        
+            }
+            else{
+                deletteUserToRoom(socket.id,user.room);
+                if(user.role == 'admin'){
+                    let game = getGame(user.room)
+                    if(game.inGame == true){
+
+                    }
+                    else{
+                        let users = getUsersRoom(user.room);
+                        console.log('users :::::::=>   ')
+                        console.log(users.length)
+                        if(users.length === 0){
+                    }
+                    else{
+                        users[0].role = 'admin'
+                        let room = getRoom(user.room);
+                        room.userAdminSocket = users[0].id;
+                        io.to(user.room).emit('resetid');
                     }
 
+
+                    }
+                    
+                    
+                    //io.to(user.room).emit('changeAdminRoom')
                 }
-                
-                
+                io.to(user.room).emit('UsersRoom',{room : user.room,
+                users : getUsersRoom(user.room) });
+
             }          
         }
         console.log('un utilisateur vient de partir !!')
