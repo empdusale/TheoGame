@@ -11,7 +11,8 @@ function addUser(id,username,room) {
         nbDeVote: 0,
         bonus : true,
         inGame : false,
-        role : null
+        role : null,
+        aVoter : false
         
     }
     users.push(user);

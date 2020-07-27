@@ -52,7 +52,7 @@ io.on('connection',(socket)=> {
         //console.log(getUsersGame(user.room))
         socket.emit('getCurentQuestion',{CurrentQuestion : getGame(user.room).currentQuestion})
         io.to(user.room).emit('GamePlayer',{pinGamme : user.room,
-        users : getUsersGame(user.room),compteurQuestion : getGame(user.room).compteurQuestion,compteurQuestionMax : getGame(user.room).compteurQuestionMax,bonus : user.bonus
+            usersNew : getUsersGame(user.room),compteurQuestion : getGame(user.room).compteurQuestion,compteurQuestionMax : getGame(user.room).compteurQuestionMax,bonus : user.bonus
         });
     })
 
@@ -73,6 +73,7 @@ io.on('connection',(socket)=> {
         
         let game = getGame(pinGamme);
         let user = getUser(socket.id);
+        user.aVoter = true;
         let userVote = getUser(reponse);
         userVote.voterPar.push(user.username)
         userVote.nbDeVote++;
@@ -94,6 +95,7 @@ io.on('connection',(socket)=> {
             user.voteFor = '';
             user.voterPar = [];
             user.nbDeVote = 0;
+            user.aVoter = false;
         })
         game.CurrentQuestion = getQuestion(pinGamme).text;
         io.to(pinGamme).emit('getCurentQuestion',{CurrentQuestion : game.CurrentQuestion })
@@ -133,20 +135,36 @@ io.on('connection',(socket)=> {
                 users : getUsersRoom(user.room) });
             if(user.inGame){
                 let game = getGame(user.room);
-                if(game.users.length-1 < 3){
+                deletteUserToGame(socket.id,user.room);
+                if(game.users.length < 3){
                     io.to(user.room).emit('goToRoom')
                 }
-                deletteUserToGame(socket.id,user.room);
-                console.log('game user delete')
-                console.log(getGame(user.room))
-                if(getGame(user.room) === undefined){
+                else{
+                    if(user.aVoter == true){
+                        game.compteurVote--;
+                    }
+                    if(getGame(user.room) === undefined){
+    
+                    }
+                    else{
+                        io.to(user.room).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(user.room),compteurQuestion : game.compteurQuestion});
+                        if(user.role === 'admin'){
+                        game.users[0].role = 'admin'
+                        io.to(user.room).emit('changeAdmin',{socket: game.userAdminSocket});
+    
+                        }
+                        let newListUser = getUsersGame(user.room)
+                        setUserTrier(user.room);
+                        //console.log('gameUserTrier::: ')
+                        //console.log(game.usersTrier)
+                        io.to(user.room).emit('ResetUserLeave',{users : newListUser, compteurQuestion : getGame(user.room).compteurQuestion,compteurQuestionMax : getGame(user.room).compteurQuestionMax})
+                        ;
+                        
+                            
+                    }
 
                 }
-                else{
-                    io.to(user.room).emit('GamePlayer',{room : user.room,
-                        users : getUsersGame(user.room) });
-                    
-                }
+                
                 
             }          
         }

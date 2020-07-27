@@ -11,6 +11,7 @@ class Game extends Component {
         super(props)
 
         this.setUsers = this.setUsers.bind(this);
+        this.setUsersView = this.setUsersView.bind(this)
         this.changeQuestion = this.changeQuestion.bind(this)
         this.setQuestion = this.setQuestion.bind(this);
         this.attenteTest = this.attenteTest.bind(this)
@@ -144,6 +145,30 @@ class Game extends Component {
             pinGamme: pinGamme,
             id:id
         })
+        socket.on('ResetUserLeave',({users,compteurQuestion,compteurQuestionMax})=>{
+            console.log('Test User')
+            console.log('User Trierrr Client ::::: ');
+            console.log(users)
+            let user = users.find(user => user.id == socket.id)
+            this.setState({
+                users:users,
+                compteurQuestion: compteurQuestion,
+                compteurQuestionMax : compteurQuestionMax,
+                user : user,
+            })
+            this.setUsersView(this.state.users);
+            
+        })
+
+        socket.on('changeAdmin',({socket})=>{
+            if(this.state.user.role == 'admin'){
+                console.log('nouvelle admin trouver')
+                this.setState({
+                    id : socket 
+                })
+            }
+
+        })
 
         socket.on('goToRoom',()=>{
             window.location = `http://localhost:3000/gameMenu?name=${this.state.name}&room=${this.state.pinGamme}&id=${this.state.id}`
@@ -197,13 +222,17 @@ class Game extends Component {
                 users: users,
                 compteurQuestion: compteurQuestion
             })
+            console.log('LES USERS PRESNT')
+            console.log(this.state.users)
 
         })
         socket.emit('joinGame', { name, pinGamme ,id})
-        socket.on('GamePlayer', ({ pinGamme, users, compteurQuestion, compteurQuestionMax, bonus }) => {
-            let user = users.find(user => user.id === socket.id);
-            this.setUsers(users);
-            this.setUsersView(users);
+        socket.on('GamePlayer', ({ pinGamme, usersNew, compteurQuestion, compteurQuestionMax, bonus }) => {
+            console.log('User GamePlayer2 ::::: ')
+            console.log(usersNew);
+            let user = usersNew.find(user => user.id === socket.id);
+            this.setUsers(usersNew);
+            this.setUsersView(usersNew);
             this.setState({
                 compteurQuestion: compteurQuestion,
                 compteurQuestionMax: compteurQuestionMax,
@@ -244,10 +273,7 @@ class Game extends Component {
                 )
             }
             else {
-                console.log('ARepondu ======= ' + this.state.aRepondu)
-                console.log('compteurQuestion ======= ' + this.state.compteurQuestion)
-                console.log('compteurQuestionMax ======= ' + this.state.compteurQuestionMax)
-    
+           
                 if (this.state.compteurVote === this.state.users.length && this.state.bonus === false) {
                     if (this.state.afficheResultat === false) {
                         if (this.state.user.role === 'admin') {
