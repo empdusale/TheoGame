@@ -1,4 +1,4 @@
-import React ,{Component}from 'react'
+import React, { Component } from 'react'
 import queryString from 'query-string'
 import io from 'socket.io-client'
 let socket;
@@ -7,232 +7,510 @@ let socket;
 const ENDPOINT = 'localhost:5000'
 
 class Game extends Component {
-    constructor(props){
+    constructor(props) {
         super(props)
 
         this.setUsers = this.setUsers.bind(this);
         this.changeQuestion = this.changeQuestion.bind(this)
         this.setQuestion = this.setQuestion.bind(this);
-        
+        this.attenteTest = this.attenteTest.bind(this)
+        this.functionBoolAttenteResultat = this.functionBoolAttenteResultat.bind(this)
+
+
 
         this.state = {
-            users :[],
-            usersView : [],
-            name :"",
-            pinGamme :"",
-            location :props.location,
-            question : "",
-            reponse :  "",
-            aRepondu : false,
-            compteurVote : 0,
-            compteurQuestion : 1,
-            compteurQuestionMax : null
+            users: [],
+            usersView: [],
+            usersTrier: [],
+            name: "",
+            pinGamme: "",
+            id : "",
+            location: props.location,
+            question: "",
+            reponse: "",
+            aRepondu: false,
+            bonus: true,
+            compteurVote: 0,
+            compteurQuestion: 1,
+            compteurQuestionMax: null,
+            afficheResultat: false,
+            user: {},
+            boolAttenteResultat :false,
+            messageAttenteResultat : null,
+            resultatBonus : "...",
 
-            
+
         }
     }
-    setUsers(users){
-        this.setState({users : users})
+    setUsers(users) {
+        this.setState({ users: users })
         console.log('voici les users :')
         console.log(this.state.users)
     }
 
-    setUsersView(users){
+    setUsersView(users) {
         let copyUser = users;
         const index = copyUser.findIndex(user => user.id === socket.id);
-        if (index !== -1){
-            copyUser.splice(index,1)
-            this.setState({usersView : copyUser})
-               
+        if (index !== -1) {
+            copyUser.splice(index, 1)
+            this.setState({ usersView: copyUser })
+
         }
-        
+
     }
-    setQuestion(question){
-        this.setState({question : question})
+
+    setQuestion(question) {
+        this.setState({ question: question })
+    }
+    functionBoolAttenteResultat(){
+        this.setState({
+            boolAttenteResultat : false,
+            resultatBonus : "..."
+
+        })
+    }
+
+    formatVoterPar(voterParListe){
+        var res = ""
+        if(voterParListe.length == 1){
+            res = voterParListe[0]
+        }
+        else if( voterParListe.length > 1){
+            for(var i = 0;i<voterParListe.length-1;i++){
+                res = res + voterParListe[i] + ", "
+            }
+            res = res + voterParListe[voterParListe.length-1]
+        }
+        return res;
+    }
+
+    
+
+    attenteTest(){
+        setTimeout(this.functionBoolAttenteResultat, 3000)
+        if(this.state.afficheResultat === true){
+            this.setState({
+                resultatBonus : 'bonus activer'
+            })
+        }
+        else{
+            this.setState({
+                resultatBonus : 'bonus echoué' 
+            })
+        }             
+    }
+
+
+
+    activateBonus(e) {
+        console.log('bonusActiver');
+        //this.attenteTest();
+        
+        socket.emit('activateBonus', this.state.pinGamme,this.state.name)
+        this.setState({
+            bonus: false
+        })
     }
 
 
     vote(e) {
-        
-        console.log('id : ',e.target.value)
 
-        socket.emit('aVoter',{pinGamme : this.state.pinGamme ,reponse : e.target.value})
+        console.log('id : ', e.target.value)
+
+        socket.emit('aVoter', { pinGamme: this.state.pinGamme, reponse: e.target.value })
         let user = this.state.users.find(user => user.id === e.target.value)
         this.setState({
-            reponse : user.username,
-            aRepondu : true,
-            
+            reponse: user.username,
+            aRepondu: true,
+
         })
     }
-    goToRoom(e){
-        window.location = `http://localhost:3000/gameMenu?name=${this.state.name}&room=${this.state.pinGamme}`
+    goToRoom(e) {
+        socket.emit('requetteGoToRoom',this.state.pinGamme);
     }
+    
 
-    changeQuestion(e){
-        socket.emit('nextQuestion',this.state.pinGamme);
+    changeQuestion(e) {
+        socket.emit('nextQuestion', this.state.pinGamme);
 
     }
     componentDidMount() {
-        var { name, pinGamme} = queryString.parse(this.state.location.search);
+        var { name, pinGamme ,id} = queryString.parse(this.state.location.search);
 
         socket = io(ENDPOINT)
-        
+
         this.setState({
-            name : name,
-            pinGamme : pinGamme
+            name: name,
+            pinGamme: pinGamme,
+            id:id
         })
-        
-        socket.on('getCurentQuestion',({CurrentQuestion}) => {
-            console.log('QUESSSSSTION : '+ CurrentQuestion)
+
+        socket.on('goToRoom',()=>{
+            window.location = `http://localhost:3000/gameMenu?name=${this.state.name}&room=${this.state.pinGamme}&id=${this.state.id}`
+
+        })
+
+        socket.on('attenteResultat',({message,afficheResultat})=>{
+            setTimeout(this.attenteTest, 3000)
+            this.setState({
+                messageAttenteResultat : message,
+                boolAttenteResultat : true,
+                afficheResultat:afficheResultat
+
+            })
+
+
+        })
+        socket.on('envoieResultat',({resultatBonus})=>{
+            this.setState({
+                resultatBonus : resultatBonus
+            })
+        })
+
+        socket.on('bonnusActiver', (afficheResultat) => {
+            this.setState({
+                afficheResultat: afficheResultat
+            })
+        })
+
+        socket.on('getUserTrier', ({ userTrier }) => {
+            console.log('USERRRR  TRIERRRRRRRR:')
+            console.log(userTrier);
+            this.setState({
+                usersTrier: userTrier
+            })
+        })
+
+        socket.on('getCurentQuestion', ({ CurrentQuestion }) => {
+            console.log('QUESSSSSTION : ' + CurrentQuestion)
             this.setQuestion(CurrentQuestion)
             this.setState({
-                aRepondu :false
+                aRepondu: false,
+                afficheResultat: false
             })
 
         }
         )
-        socket.on('compteurVote',({compteur,users,compteurQuestion})=>{
+        socket.on('compteurVote', ({ compteur, users, compteurQuestion }) => {
             this.setState({
-                compteurVote : compteur,
-                users : users,
-                compteurQuestion : compteurQuestion
+                compteurVote: compteur,
+                users: users,
+                compteurQuestion: compteurQuestion
             })
-            console.log('USERS :::::: ')
-            console.log(this.state.users)
 
         })
-        socket.emit('joinGame',{name,pinGamme})
-        console.log('JOIN GAMME')
-        socket.on('GamePlayer',({pinGamme,users,compteurQuestion,compteurQuestionMax} )=>{
-            console.log('Game user ::')
-            console.log('GAMMMMEEE PLAYYYER')
-            console.log(users)
+        socket.emit('joinGame', { name, pinGamme ,id})
+        socket.on('GamePlayer', ({ pinGamme, users, compteurQuestion, compteurQuestionMax, bonus }) => {
+            let user = users.find(user => user.id === socket.id);
             this.setUsers(users);
             this.setUsersView(users);
             this.setState({
-                compteurQuestion : compteurQuestion,
-                compteurQuestionMax : compteurQuestionMax
+                compteurQuestion: compteurQuestion,
+                compteurQuestionMax: compteurQuestionMax,
+                bonus: bonus,
+                user: user
             }
             )
-        })      
-      }
-      
-    render( ){
-        if(this.state.aRepondu === false){
-            return(
+        })
+    }
+    render() {
+        if(this.state.boolAttenteResultat === true){
+            return (
                 <div className="container">
-                <h1>La partie Commence </h1>
-                <br/>
-                <h3>{this.state.question}</h3>
-                <br/>
-                <ul className="list-group" >{this.state.usersView.map(user =>
-                    <li className="list-group-item">
-                    <button  type="button" className="btn btn-info" value={user.id} onClick={(e) => this.vote(e)} >  {user.username}</button>
-                    </li>
-                    )}
-                </ul> 
-                <h3>Question {this.state.compteurQuestion}/{this.state.compteurQuestionMax}</h3>         
-            </div>
-                )
-        } 
-        else {
-            console.log('ARepondu ======= '+ this.state.aRepondu)
-            console.log('compteurQuestion ======= '+ this.state.compteurQuestion)
-            console.log('compteurQuestionMax ======= '+ this.state.compteurQuestionMax)
-            if(this.state.compteurVote === this.state.users.length){
-                return(
-                    <div className="container">
-                    <h1>voici les résultat : </h1>
-                    <br/>
-                    <h3>{this.state.question}</h3>
-                    <br/>
-                    <ul className="list-group" >{this.state.users.map(user =>
-                    <li className="list-group-item">
-                    <button  type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
-                    <h4>nb de vote : {user.nbDeVote}</h4>
-                    </li>
-                    )}
-                </ul>
-                <btn type="button" className="btn btn-warning" onClick={(e) => this.changeQuestion(e)} >Question Suivante</btn>         
-            </div>
-                )
-            }
-            else{
-                return(
-                    <div className="container">
-                        <h1>vous avez répondu : {this.state.reponse}</h1>
-                        <br/>
-                        <h3>personne qui on voté : {this.state.compteurVote}/{this.state.users.length} </h3>
-        
-        
-        
-                    </div>
-                    
-        
-                    )
+                    <h1>{this.state.messageAttenteResultat} </h1>
+                    <br />
+            <h3>le resultat est : {this.state.resultatBonus}</h3>
+                    <br />
+                </div>
+            )
 
+        }
+        else{
+            if (this.state.aRepondu === false) {
+                return (
+                    <div className="container">
+                        <h1>La partie Commence </h1>
+                        <br />
+                        <h3>{this.state.question}</h3>
+                        <br />
+                        <ul className="list-group" >{this.state.usersView.map(user =>
+                            <li className="list-group-item">
+                                <button type="button" className="btn btn-info" value={user.id} onClick={(e) => this.vote(e)} >  {user.username}</button>
+                            </li>
+                        )}
+                        </ul>
+                        <h3>Question {this.state.compteurQuestion}/{this.state.compteurQuestionMax}</h3>
+                    </div>
+                )
             }
+            else {
+                console.log('ARepondu ======= ' + this.state.aRepondu)
+                console.log('compteurQuestion ======= ' + this.state.compteurQuestion)
+                console.log('compteurQuestionMax ======= ' + this.state.compteurQuestionMax)
+    
+                if (this.state.compteurVote === this.state.users.length && this.state.bonus === false) {
+                    if (this.state.afficheResultat === false) {
+                        if (this.state.user.role === 'admin') {
+                            if(this.state.compteurQuestion === this.state.compteurQuestionMax){
+                                return (
+                                    <div className="container">
+                                        <h1>voici les résultat : </h1>
+                                        <br />
+                                        <h3>{this.state.question}</h3>
+                                        <br />
+                                        <ul className="list-group" >{this.state.usersTrier.map(user =>
+                                            <li className="list-group-item">
+                                                <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
+                                                <h4>nb de vote : {user.nbDeVote}</h4>
+                                            </li>
+                                        )}
+                                        </ul>
+                                        <btn type="button" className="btn btn-danger" onClick={(e) => this.goToRoom(e)} >Retour a la room</btn>
+                                    </div>
+                                )
+
+                            }
+                            else{
+                                return (
+                                    <div className="container">
+                                        <h1>voici les résultat : </h1>
+                                        <br />
+                                        <h3>{this.state.question}</h3>
+                                        <br />
+                                        <ul className="list-group" >{this.state.usersTrier.map(user =>
+                                            <li className="list-group-item">
+                                                <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
+                                                <h4>nb de vote : {user.nbDeVote}</h4>
+                                            </li>
+                                        )}
+                                        </ul>
+                                        <btn type="button" className="btn btn-warning" onClick={(e) => this.changeQuestion(e)} >Question Suivante</btn>
+                                    </div>
+                                )
+
+                            }
+                            
+                        }
+                        else {
+                            return (
+                                <div className="container">
+                                    <h1>voici les résultat : </h1>
+                                    <br />
+                                    <h3>{this.state.question}</h3>
+                                    <br />
+                                    <ul className="list-group" >{this.state.usersTrier.map(user =>
+                                        <li className="list-group-item">
+                                            <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
+                                            <h4>nb de vote : {user.nbDeVote}</h4>
+                                        </li>
+                                    )}
+                                    </ul>
+                                </div>
+                            )
+                        }
+                    }
+                    else {
+                        if (this.state.user.role === 'admin') {
+                            if(this.state.compteurQuestion === this.state.compteurQuestionMax){
+                                return (
+                                    <div className="container">
+                                        <h1>voici les résultat : </h1>
+                                        <br />
+                                        <h3>{this.state.question}</h3>
+                                        <br />
+                                        <ul className="list-group" >{this.state.usersTrier.map(user =>
+                                            <li className="list-group-item">
+                                                <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
+                                                <h4>a été voteé par : {this.formatVoterPar(user.voterPar)}</h4>
+                                            </li>
+                                        )}
+                                        </ul>
+                                        <btn type="button" className="btn btn-danger" onClick={(e) => this.goToRoom(e)} >Retour a la room</btn>
+                                    </div>
+                                )
+
+                            }
+                            else{
+                                return (
+                                    <div className="container">
+                                        <h1>voici les résultat : </h1>
+                                        <br />
+                                        <h3>{this.state.question}</h3>
+                                        <br />
+                                        <ul className="list-group" >{this.state.usersTrier.map(user =>
+                                            <li className="list-group-item">
+                                                <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
+                                                <h4>a été voteé par : {this.formatVoterPar(user.voterPar)}</h4>
+                                            </li>
+                                        )}
+                                        </ul>
+                                        <btn type="button" className="btn btn-warning" onClick={(e) => this.changeQuestion(e)} >Question Suivante</btn>
+                                    </div>
+                                )
+
+                            }
+                            
+                        }
+                        else {
+                            return (
+                                <div className="container">
+                                    <h1>voici les résultat : </h1>
+                                    <br />
+                                    <h3>{this.state.question}</h3>
+                                    <br />
+                                    <ul className="list-group" >{this.state.usersTrier.map(user =>
+                                        <li className="list-group-item">
+                                            <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
+                                            <h4>a été voteé par : {this.formatVoterPar(user.voterPar)}</h4>
+                                        </li>
+                                    )}
+                                    </ul>
+                                </div>
+                            )
+                        }
+                    }
+                }
+                else if (this.state.compteurVote === this.state.users.length && this.state.bonus === true) {
+                    if (this.state.afficheResultat === false) {
+                        if (this.state.user.role === 'admin') {
+                            if(this.state.compteurQuestion === this.state.compteurQuestionMax){
+                                return (
+                                    <div className="container">
+                                        <h1>voici les résultat : </h1>
+                                        <br />
+                                        <h3>{this.state.question}</h3>
+                                        <br />
+                                        <ul className="list-group" >{this.state.usersTrier.map(user =>
+                                            <li className="list-group-item">
+                                                <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
+                                                <h4>nb de vote : {user.nbDeVote}</h4>
+                                            </li>
+                                        )}
+                                        </ul>
+                                        <btn type="button" className="btn btn-danger" onClick={(e) => this.goToRoom(e)} >Retour a la room</btn>
+                                        <btn type="button" className="btn btn-success" onClick={(e) => this.activateBonus(e)} >Activer le bonus</btn>
+                                    </div>
+                                )
+
+                            }
+                            else{
+                                return (
+                                    <div className="container">
+                                        <h1>voici les résultat : </h1>
+                                        <br />
+                                        <h3>{this.state.question}</h3>
+                                        <br />
+                                        <ul className="list-group" >{this.state.usersTrier.map(user =>
+                                            <li className="list-group-item">
+                                                <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
+                                                <h4>nb de vote : {user.nbDeVote}</h4>
+                                            </li>
+                                        )}
+                                        </ul>
+                                        <btn type="button" className="btn btn-warning" onClick={(e) => this.changeQuestion(e)} >Question Suivante</btn>
+                                        <btn type="button" className="btn btn-success" onClick={(e) => this.activateBonus(e)} >Activer le bonus</btn>
+                                    </div>
+                                )
+
+                            }
+                            
+                        }
+                        else {
+                            return (
+                                <div className="container">
+                                    <h1>voici les résultat : </h1>
+                                    <br />
+                                    <h3>{this.state.question}</h3>
+                                    <br />
+                                    <ul className="list-group" >{this.state.usersTrier.map(user =>
+                                        <li className="list-group-item">
+                                            <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
+                                            <h4>nb de vote : {user.nbDeVote}</h4>
+                                        </li>
+                                    )}
+                                    </ul>
+                                    <btn type="button" className="btn btn-success" onClick={(e) => this.activateBonus(e)} >Activer le bonus</btn>
+                                </div>
+                            )
+                        }
+                    }
+                    else {
+                        if (this.state.user.role === 'admin') {
+                            if(this.state.compteurQuestion === this.state.compteurQuestionMax){
+                                return (
+                                    <div className="container">
+                                        <h1>voici les résultat : </h1>
+                                        <br />
+                                        <h3>{this.state.question}</h3>
+                                        <br />
+                                        <ul className="list-group" >{this.state.usersTrier.map(user =>
+                                            <li className="list-group-item">
+                                                <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
+                                                <h4>a été voteé par : {this.formatVoterPar(user.voterPar)}</h4>
+                                            </li>
+                                        )}
+                                        </ul>
+                                        <btn type="button" className="btn btn-danger" onClick={(e) => this.goToRoom(e)} >Retour a la room</btn>
+                                    </div>
+                                )
+
+                            }
+                            else{
+                                return (
+                                    <div className="container">
+                                        <h1>voici les résultat : </h1>
+                                        <br />
+                                        <h3>{this.state.question}</h3>
+                                        <br />
+                                        <ul className="list-group" >{this.state.usersTrier.map(user =>
+                                            <li className="list-group-item">
+                                                <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
+                                                <h4>a été voteé par : {this.formatVoterPar(user.voterPar)}</h4>
+                                            </li>
+                                        )}
+                                        </ul>
+                                        <btn type="button" className="btn btn-warning" onClick={(e) => this.changeQuestion(e)} >Question Suivante</btn>
+                                    </div>
+                                )
+
+                            }
+                            
+                        }
+                        else {
+                            return (
+                                <div className="container">
+                                    <h1>voici les résultat : </h1>
+                                    <br />
+                                    <h3>{this.state.question}</h3>
+                                    <br />
+                                    <ul className="list-group" >{this.state.usersTrier.map(user =>
+                                        <li className="list-group-item">
+                                            <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
+                                            <h4>a été voteé par : {this.formatVoterPar(user.voterPar)}</h4>
+                                        </li>
+                                    )}
+                                    </ul>
+                                </div>
+                            )
+                        }
+                    }
+                }
+                else {
+                    return (
+                        <div className="container">
+                            <h1>vous avez répondu : {this.state.reponse}</h1>
+                            <br />
+                            <h3>personne qui on voté : {this.state.compteurVote}/{this.state.users.length} </h3>
+                        </div>
+                    )
+                }
+            }
+
+
         }
         
     }
 }
-/*function Game({location}){
-
-    const[name,setName] = useState('');
-    const[pinGamme,setPinGamme] = useState('');
-    const[users,setUsers] = useState([]);
-    const[rooms,setRooms] = useState([])
-    const[question,setQuestion] = useState('qui est le plus beau ?');
-    
-
-
-    const ENDPOINT = 'localhost:5000'
-
-    useEffect(()=> {
-        var { name, pinGamme} = queryString.parse(location.search);
-
-        socket = io(ENDPOINT)
-        
-        setName(name);
-        setPinGamme(pinGamme);
-        socket.emit('joinGame',{name,pinGamme})
-        console.log('JOIN GAMME')
-        socket.on('GamePlayer',({pinGamme,users} )=>{
-            console.log('Game user ::')
-            console.log(users)
-            setUsers(users);
-
-        })
-        
-
-    }, [ENDPOINT,location.search])
-
-    const changeQuestion = (btn) => {
-        setQuestion('qui est le plus sympathique ?')
-        console.log('Valeur bouton = '+ btn);
-    }
-    
-    return(
-        <div className="container">
-            <h1>La partie Commence </h1>
-            <br/>
-            <h3>{question}</h3>
-            <br/>
-            <ul className="list-group" >{users.map(user =>
-                <li className="list-group-item">
-                <button  type="button" className="btn btn-info" value={user.username} onClick={this.changeQuestion}>  {user.username}</button>
-                </li>
-                )}
-            </ul>
-            
-            
-            
-            
-            
-        </div>
-    )
-}
-*/
 
 
 export default Game;

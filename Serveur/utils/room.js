@@ -13,7 +13,9 @@ function getRoom(roomId){
 function addRoom(roomId){
     let room = {
         roomId : roomId,
-        users : []
+        users : [],
+        userAdminSocket : null
+
     }
     rooms.push(room)
     //return room
@@ -30,15 +32,20 @@ function getUsersRoom(roomId){
     return room.users;
     
 }
-function addUserToRoom(user,roomId){
+function addUserToRoom(user,roomId,id){
     const index = rooms.findIndex(room => room.roomId === roomId);
     if(index === -1){
+        user.role = 'admin'
         addRoom(roomId);
         let room = rooms.find(room => room.roomId === roomId);
+        room.userAdminSocket = user.id;
         room.users.push(user);
     }
     else{
         let room = rooms.find(room => room.roomId === roomId);
+        if(room.userAdminSocket == id){
+            user.role = 'admin'
+        }
         room.users.push(user);
    }
    

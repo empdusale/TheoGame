@@ -3,7 +3,7 @@ const http = require('http');
 const socketio = require('socket.io')
 const{addUser,getUser,deletteUser,getAllUser} = require('./utils/users')
 const{addUserToRoom,getUsersRoom, getAllRoom,deletteUserToRoom} =require('./utils/room')
-const{getQuestion, addUserToGame,getUsersGame,deletteUserToGame, getAllGames, getGame} = require('./utils/game')
+const{getQuestion, addUserToGame,getUsersGame,deletteUserToGame, getAllGames, getGame,setUserTrier,createGame} = require('./utils/game')
 const usersRoute = require('./route/users')
 const cors = require('cors');
 
@@ -23,9 +23,9 @@ io.on('connection',(socket)=> {
 
 
 
-    socket.on('joinRoom',({name,room}) => {
+    socket.on('joinRoom',({name,room,id}) => {
         let user = addUser(socket.id,name,room)
-        addUserToRoom(user,room);
+        addUserToRoom(user,room,id);
         console.log('Room : ')
         console.log(getAllUser());
         socket.join(user.room);
@@ -41,35 +41,47 @@ io.on('connection',(socket)=> {
 
     })
 
-    socket.on('joinGame',({name,pinGamme}) => {
+    socket.on('joinGame',({name,pinGamme,id}) => {
         let user = addUser(socket.id,name,pinGamme)
         user.inGame = true;
-        addUserToGame(user,pinGamme);
-        addUserToRoom(user,pinGamme);
-        console.log('Game : ')
-        console.log(getAllGames());
+        addUserToGame(user,pinGamme,id);
+        //console.log('Game : ')
+        //console.log(getAllGames());
         socket.join(user.room);
-        console.log(getUsersGame(user.room))
-        console.log('question : '+ getGame(user.room).currentQuestion )
+        //console.log('USER GAME')
+        //console.log(getUsersGame(user.room))
         socket.emit('getCurentQuestion',{CurrentQuestion : getGame(user.room).currentQuestion})
         io.to(user.room).emit('GamePlayer',{pinGamme : user.room,
-        users : getUsersGame(user.room),compteurQuestion : getGame(user.room).compteurQuestion,compteurQuestionMax : getGame(user.room).compteurQuestionMax
+        users : getUsersGame(user.room),compteurQuestion : getGame(user.room).compteurQuestion,compteurQuestionMax : getGame(user.room).compteurQuestionMax,bonus : user.bonus
         });
     })
 
-    socket.on('startGame',()=>{
+    socket.on('startGame',({id,nbQuestion})=>{
+        
         let user = getUser(socket.id);
+        console.log('idddddd :::::::: '+id)
+        if(id === undefined){
+            createGame(user.room,socket.id,nbQuestion)
+        }
+        else{
+            createGame(user.room,id,nbQuestion)
+        }
         io.to(user.room).emit('gameStarted')
     })
 
     socket.on('aVoter',({pinGamme,reponse}) => {
+        
         let game = getGame(pinGamme);
         let user = getUser(socket.id);
         let userVote = getUser(reponse);
-        userVote.voterPar.push(user.name)
+        userVote.voterPar.push(user.username)
         userVote.nbDeVote++;
         user.voteFor = userVote.username;
         game.compteurVote++;
+        if(game.compteurVote == game.users.length){
+            setUserTrier(pinGamme);
+            io.to(pinGamme).emit('getUserTrier',{userTrier : game.usersTrier})
+        }
         io.to(pinGamme).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(pinGamme),compteurQuestion : game.compteurQuestion});
 
     })
@@ -83,14 +95,29 @@ io.on('connection',(socket)=> {
             user.voterPar = [];
             user.nbDeVote = 0;
         })
-        game.CurrentQuestion = getQuestion().text;
+        game.CurrentQuestion = getQuestion(pinGamme).text;
         io.to(pinGamme).emit('getCurentQuestion',{CurrentQuestion : game.CurrentQuestion })
         io.to(pinGamme).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(pinGamme),compteurQuestion : game.compteurQuestion});
     })
 
+    socket.on('activateBonus',(pinGamme,name)=>{
+        let afficheResultat = false;
+        var nombre = 0;
+        nombre = Math.floor(Math.random() * (1 - 0 + 1)) + 0;
+        let message = `${name} vient d'activer son bonus`
+        if(nombre == 0){
+            afficheResultat = true
+            
+        }
+        io.to(pinGamme).emit('attenteResultat',{message:message,afficheResultat : afficheResultat});
+        //setTimeout(envoieResultat(pinGamme), 3000)
+        //io.to(pinGamme).emit('bonnusActiver',{afficheResultat : true})
+    })
 
-
-
+    socket.on('requetteGoToRoom',(pinGamme)=>{
+        io.to(pinGamme).emit('goToRoom');
+    })
+    
 
     socket.on('disconnect',() => {
        
@@ -105,9 +132,22 @@ io.on('connection',(socket)=> {
             io.to(user.room).emit('UsersRoom',{room : user.room,
                 users : getUsersRoom(user.room) });
             if(user.inGame){
+                let game = getGame(user.room);
+                if(game.users.length-1 < 3){
+                    io.to(user.room).emit('goToRoom')
+                }
                 deletteUserToGame(socket.id,user.room);
-                io.to(user.room).emit('GamePlayer',{room : user.room,
-                    users : getUsersGame(user.room) });
+                console.log('game user delete')
+                console.log(getGame(user.room))
+                if(getGame(user.room) === undefined){
+
+                }
+                else{
+                    io.to(user.room).emit('GamePlayer',{room : user.room,
+                        users : getUsersGame(user.room) });
+                    
+                }
+                
             }          
         }
         console.log('un utilisateur vient de partir !!')
