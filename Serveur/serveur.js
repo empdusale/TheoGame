@@ -147,20 +147,17 @@ io.on('connection',(socket)=> {
     
                     }
                     else{
-                        io.to(user.room).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(user.room),compteurQuestion : game.compteurQuestion});
                         if(user.role === 'admin'){
-                        game.users[0].role = 'admin'
-                        io.to(user.room).emit('changeAdmin',{socket: game.userAdminSocket});
-    
+                            console.log('Admin Disconect !!!!!!!!')
+                            game.users[0].role = 'admin'
+                            console.log('User Avant envoi');
+                            console.log(game.users)
+                            io.to(user.room).emit('changeAdmin',{socket: game.userAdminSocket});
+        
                         }
-                        let newListUser = getUsersGame(user.room)
                         setUserTrier(user.room);
-                        //console.log('gameUserTrier::: ')
-                        //console.log(game.usersTrier)
-                        io.to(user.room).emit('ResetUserLeave',{users : newListUser, compteurQuestion : getGame(user.room).compteurQuestion,compteurQuestionMax : getGame(user.room).compteurQuestionMax})
-                        ;
-                        
-                            
+                        io.to(user.room).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(user.room),compteurQuestion : game.compteurQuestion});
+                                           
                     }
 
                 }

@@ -50,7 +50,10 @@ class Game extends Component {
     }
 
     setUsersView(users) {
-        let copyUser = users;
+        let copyUser = [];
+        for(let i = 0;i< users.length;i++){
+            copyUser[i] = users[i];
+        }
         const index = copyUser.findIndex(user => user.id === socket.id);
         if (index !== -1) {
             copyUser.splice(index, 1)
@@ -222,6 +225,11 @@ class Game extends Component {
                 users: users,
                 compteurQuestion: compteurQuestion
             })
+            let user = this.state.users.find(user => user.id == socket.id)
+            this.setState({
+                user : user
+            })
+            this.setUsersView(this.state.users);
             console.log('LES USERS PRESNT')
             console.log(this.state.users)
 
