@@ -2,7 +2,7 @@ const express = require('express')
 const http = require('http');
 const socketio = require('socket.io')
 const{addUser,getUser,deletteUser,getAllUser} = require('./utils/users')
-const{addUserToRoom,getUsersRoom, getAllRoom,deletteUserToRoom, getRoom} =require('./utils/room')
+const{addUserToRoom,getUsersRoom, getAllRoom,deletteUserToRoom, getRoom,deletteRoom} =require('./utils/room')
 const{getQuestion, addUserToGame,getUsersGame,deletteUserToGame, getAllGames, getGame,setUserTrier,createGame} = require('./utils/game')
 const usersRoute = require('./route/users')
 const cors = require('cors');
@@ -187,38 +187,49 @@ io.on('connection',(socket)=> {
             }
             else{
                 deletteUserToRoom(socket.id,user.room);
-                if(user.role == 'admin'){
-                    console.log('SUPRESSIONN ADMINN')
-                    
-                    let room = getRoom(user.room)
-                    console.log('Valeur Ingame '+ room.inGame)
-                    if(room.inGame == true){
-                        console.log('in Game ==================  True')
+                let room = getRoom(user.room)
+                let users = getUsersRoom(user.room);
+                if(users.length <= 0 && room.inGame == false){
+                    deletteRoom(user.room)
 
-                    }
-                    else{
-                        let users = getUsersRoom(user.room);
-                        console.log('users :::::::=>   ')
-                        console.log(users.length)
-                        if(users.length === 0){
+                }
+                else{
+                    if(user.role == 'admin'){
+                        console.log('SUPRESSIONN ADMINN')
+                        
+                        let room = getRoom(user.room)
+                        console.log('Valeur Ingame '+ room.inGame)
+                        if(room.inGame == true){
+                            console.log('in Game ==================  True')
+    
                         }
                         else{
-                            users[0].role = 'admin'
-                            let room = getRoom(user.room);
-                            room.userAdminSocket = users[0].id;
-                            console.log('SOCKETTTT____ROOOMMM : '+ room.userAdminSocket)
-                            io.to(user.room).emit('resetid');
-                    }
-
-
+                            let users = getUsersRoom(user.room);
+                            console.log('users :::::::=>   ')
+                            console.log(users.length)
+                            if(users.length === 0){
+                            }
+                            else{
+                                users[0].role = 'admin'
+                                let room = getRoom(user.room);
+                                room.userAdminSocket = users[0].id;
+                                console.log('SOCKETTTT____ROOOMMM : '+ room.userAdminSocket)
+                                io.to(user.room).emit('resetid');
+                        }
+    
+    
+                        }
+                        
+                        
+                        //io.to(user.room).emit('changeAdminRoom')
                     }
                     
-                    
-                    //io.to(user.room).emit('changeAdminRoom')
+                        io.to(user.room).emit('UsersRoom',{room : user.room,
+                            users : getUsersRoom(user.room) });
+
+
                 }
                 
-                    io.to(user.room).emit('UsersRoom',{room : user.room,
-                        users : getUsersRoom(user.room) });
 
             }          
         }
