@@ -163,6 +163,16 @@ class Game extends Component {
             this.setUsersView(this.state.users);
             
         })
+        socket.on('getUserChange',({users})=>{
+            this.setState({
+                users:users
+            })
+            let user = users.find(user => user.id == socket.id)
+            this.setState({
+                user:user
+            })
+            
+        })
 
         socket.on('changeAdmin',({socket})=>{
             console.log('entrer dans change admin')

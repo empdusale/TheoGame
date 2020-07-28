@@ -13,6 +13,7 @@ const io = socketio(serveur)
 
 
 const route  = require('./route/route');
+const users = require('./utils/users');
 
 app.use(cors())
 app.use(route)
@@ -139,7 +140,23 @@ io.on('connection',(socket)=> {
                 let game = getGame(user.room);
                 deletteUserToGame(socket.id,user.room);
                 if(game.users.length < 3){
-                    io.to(user.room).emit('goToRoom')
+                    if(game.users.length == 2){
+                        if(user.role == 'admin'){
+                            game.users[0].role = 'admin';
+                            console.log('changeAdmin ::::::::::::::::::::::::::::::::::::')
+                            io.to(user.room).emit('getUserChange',{users : getUsersGame(user.room)})
+                            io.to(user.room).emit('changeAdmin',{socket: game.userAdminSocket});
+                        }
+                        let room = getRoom(user.room);
+                        room.inGame = false;
+                        io.to(user.room).emit('goToRoom')
+                    }
+                    else{
+                        
+
+                    }
+                   
+                    
                 }
                 else{
                     if(user.aVoter == true){
@@ -171,6 +188,7 @@ io.on('connection',(socket)=> {
             else{
                 deletteUserToRoom(socket.id,user.room);
                 if(user.role == 'admin'){
+                    console.log('SUPRESSIONN ADMINN')
                     
                     let room = getRoom(user.room)
                     console.log('Valeur Ingame '+ room.inGame)
@@ -183,13 +201,13 @@ io.on('connection',(socket)=> {
                         console.log('users :::::::=>   ')
                         console.log(users.length)
                         if(users.length === 0){
-                    }
-                    else{
-                        users[0].role = 'admin'
-                        let room = getRoom(user.room);
-                        room.userAdminSocket = users[0].id;
-                        console.log('SOCKETTTT____ROOOMMM : '+ room.userAdminSocket)
-                        io.to(user.room).emit('resetid');
+                        }
+                        else{
+                            users[0].role = 'admin'
+                            let room = getRoom(user.room);
+                            room.userAdminSocket = users[0].id;
+                            console.log('SOCKETTTT____ROOOMMM : '+ room.userAdminSocket)
+                            io.to(user.room).emit('resetid');
                     }
 
 
