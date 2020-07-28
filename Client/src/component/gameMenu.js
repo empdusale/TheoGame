@@ -18,6 +18,7 @@ function GameMenu({location}){
     const[messageQuestion,setMessageQuestion] = useState('');
     const[id,setId] = useState('');
     const[nbQuestion,setNbQuestion] = useState(null);
+    const[compteur,setCompteur] = useState(0);
 
     const ENDPOINT = 'localhost:5000'
 
@@ -30,8 +31,13 @@ function GameMenu({location}){
         console.log(room);
         }
         console.log('id :::::::: ',id)
-
-        setId(id);
+        if(compteur == 0){
+            console.log('entrer dans compteur')
+            setId(id);
+            setCompteur(1)
+            console.log('compteur == '+compteur)
+        }
+        
         setName(name);
         setRoom(room);
         socket.emit('join',{name,room});
@@ -45,11 +51,15 @@ function GameMenu({location}){
 
         })
         socket.on('resetid',()=>{
-            setId(undefined)
+            id = undefined;
+            setId(id)
+            console.log('Socket User :: '+socket.id)
+            console.log('id ::::: '+id)
         })
         
         
         socket.on('gameStarted',()=> {
+            console.log('Game STTTTTTTTTTARRRRTTTTED IDD ::::::>>>>  : '+id)
             if(id == undefined){
                 window.location = `http://localhost:3000/game?name=${name}&pinGamme=${room}&id=${socket.id}`
             }

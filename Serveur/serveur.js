@@ -171,8 +171,11 @@ io.on('connection',(socket)=> {
             else{
                 deletteUserToRoom(socket.id,user.room);
                 if(user.role == 'admin'){
-                    let game = getGame(user.room)
-                    if(game.inGame == true){
+                    
+                    let room = getRoom(user.room)
+                    console.log('Valeur Ingame '+ room.inGame)
+                    if(room.inGame == true){
+                        console.log('in Game ==================  True')
 
                     }
                     else{
@@ -185,6 +188,7 @@ io.on('connection',(socket)=> {
                         users[0].role = 'admin'
                         let room = getRoom(user.room);
                         room.userAdminSocket = users[0].id;
+                        console.log('SOCKETTTT____ROOOMMM : '+ room.userAdminSocket)
                         io.to(user.room).emit('resetid');
                     }
 
@@ -194,8 +198,9 @@ io.on('connection',(socket)=> {
                     
                     //io.to(user.room).emit('changeAdminRoom')
                 }
-                io.to(user.room).emit('UsersRoom',{room : user.room,
-                users : getUsersRoom(user.room) });
+                
+                    io.to(user.room).emit('UsersRoom',{room : user.room,
+                        users : getUsersRoom(user.room) });
 
             }          
         }

@@ -32,6 +32,7 @@ function createGame(gameId,userAdminSocket,nbQuestion){
         
 
     }
+    console.log('Game ______   Admin  _____ Socket  : '+game.userAdminSocket)
     
     games.push(game)
     getGame(gameId).currentQuestion = getQuestion(gameId).text
