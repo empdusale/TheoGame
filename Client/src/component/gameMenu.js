@@ -94,6 +94,9 @@ function GameMenu({location}){
         }
         
     }
+    const retourAcceuil = () => {
+        window.location = `http://localhost:3000/`
+    }
     
     if(user.role === 'admin'){
         return(
@@ -101,12 +104,14 @@ function GameMenu({location}){
                 <h1>Game menu </h1>
                 <h1>room : {room}</h1>
                 <br/>
-                <div>{users.map(user =>
-                    <div>{user.username}</div>
+                <h4>Utilisateurs connectés :</h4>
+                <ul>
+                {users.map(user =>
+                    <li><h6>{user.username} </h6></li>
                     )}
-                </div>
+                </ul>
                 <br/>
-                <h3>Nombre de question :</h3>
+                <h4>Nombre de question :</h4>
                 <select name="nbQuestion" id="question-select" onChange={(event)=> setNbQuestion(event.target.value)}>
                 <option value="10">10</option>
                 <option value="20">20</option>
@@ -118,8 +123,10 @@ function GameMenu({location}){
                 <p>{messageQuestion}</p>
                 <button onClick={() => startGame()} className="btn btn-primary" type="submit">Commencer le jeu</button>
                 <br/>
-                <br/>
                 <p>{message}</p>
+                <br/>
+                <button onClick={() => retourAcceuil()} className="btn btn-danger" type="submit">retour au menu</button>
+                
                                
             </div>
         )
@@ -130,10 +137,14 @@ function GameMenu({location}){
                 <h1>Game menu </h1>
                 <h1>room : {room}</h1>
                 <br/>
-                <div>{users.map(user =>
-                    <div>{user.username}</div>
+                <h4>Utilisateurs connectés :</h4>
+                <ul>
+                {users.map(user =>
+                    <li><h6>{user.username}</h6></li>
                     )}
-                </div>
+                </ul>
+                <br/>
+                <button onClick={() => retourAcceuil()} className="btn btn-danger" type="submit">retour au menu</button>
                 
     
                 

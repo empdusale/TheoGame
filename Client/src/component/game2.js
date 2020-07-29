@@ -6,7 +6,7 @@ let socket;
 
 const ENDPOINT = 'localhost:5000'
 
-class Game extends Component {
+class Game2 extends Component {
     constructor(props) {
         super(props)
 
@@ -586,4 +586,4 @@ class Game extends Component {
 }
 
 
-export default Game;
+export default Game2;

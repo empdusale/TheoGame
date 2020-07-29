@@ -56,6 +56,9 @@ const existRoom= (roomid) => {
 
    
 }
+const retourAcceuil = () => {
+    window.location = `http://localhost:3000/`
+}
 
 return(
 
@@ -68,6 +71,9 @@ return(
     </Link>
     <br/>
     <p>{message}</p>
+    <br/>
+    
+    <button onClick={() => retourAcceuil()} className="btn btn-danger" type="submit">retour au menu</button>
     
     </div>
     
