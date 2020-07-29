@@ -18,6 +18,7 @@ function GameMenu({location}){
     const[message,setMessage] = useState('');
     const[messageQuestion,setMessageQuestion] = useState('');
     const[id,setId] = useState('');
+    const[choixJeux,setChoixJeux] = useState('game')
     const[nbQuestion,setNbQuestion] = useState(10);
     const[compteur,setCompteur] = useState(0);
 
@@ -69,15 +70,28 @@ function GameMenu({location}){
         })
         
         
-        socket.on('gameStarted',()=> {
+        socket.on('gameStarted',({choixJeux})=> {
             console.log('Game STTTTTTTTTTARRRRTTTTED IDD ::::::>>>>  : '+id)
-            if(id == undefined){
-                window.location = `http://localhost:3000/game?name=${name}&pinGamme=${roomi}&id=${socket.id}`
-            }
-            else{
-                window.location = `http://localhost:3000/game?name=${name}&pinGamme=${roomi}&id=${id}`
+            if(choixJeux == 'game'){
+                if(id == undefined){
+                    window.location = `http://localhost:3000/game?name=${name}&pinGamme=${roomi}&id=${socket.id}`
+                }
+                else{
+                    window.location = `http://localhost:3000/game?name=${name}&pinGamme=${roomi}&id=${id}`
+    
+                }
+
+            }else{
+                if(id == undefined){
+                    window.location = `http://localhost:3000/game2?name=${name}&pinGamme=${roomi}&id=${socket.id}`
+                }
+                else{
+                    window.location = `http://localhost:3000/game2?name=${name}&pinGamme=${roomi}&id=${id}`
+    
+                }
 
             }
+            
         })
 
     }, [ENDPOINT,location.search])
@@ -86,11 +100,8 @@ function GameMenu({location}){
         if(users.length < 3){
             setMessage('il faut etre 3 joueur minimum')
         }
-        else if(nbQuestion == null){
-            setMessageQuestion('veuillez un nombre de question')
-        }
         else{
-            socket.emit('startGame',{id:id,nbQuestion: nbQuestion});
+            socket.emit('startGame',{id:id,nbQuestion: nbQuestion,choixJeux : choixJeux});
         }
         
     }
@@ -120,11 +131,17 @@ function GameMenu({location}){
                 <option value="50">50</option>
                 </select>
                 <br/>
-                <p>{messageQuestion}</p>
+                <br/>
+                <h4>Choix du jeu :</h4>
+                <select name="Choix du jeu :" id="question-select2" onChange={(event)=> setChoixJeux(event.target.value)}>
+                <option value="game">game</option>
+                <option value="game2">game2</option>
+                </select>
+                <br/>
+                <br/>
                 <button onClick={() => startGame()} className="btn btn-primary" type="submit">Commencer le jeu</button>
                 <br/>
                 <p>{message}</p>
-                <br/>
                 <button onClick={() => retourAcceuil()} className="btn btn-danger" type="submit">retour au menu</button>
                 
                                

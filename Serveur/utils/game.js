@@ -1,5 +1,6 @@
 let games = [];
 let questions = require('../public/question');
+let questionsPrefere = require('../public/questionPrefere')
 const tailleQuestion = questions.length;
 
 
@@ -13,11 +14,18 @@ function getGame(gameId){
     return game;
 }
 
-function createGame(gameId,userAdminSocket,nbQuestion){
+function createGame(gameId,userAdminSocket,nbQuestion,choixJeux){
     copyQuestion = [];
-    for (var i = 0; i < questions.length; i++){
-        copyQuestion[i] = questions[i];
+    if(choixJeux == 'game'){
+        for (var i = 0; i < questions.length; i++){
+            copyQuestion[i] = questions[i];
+        }
+    }else{
+        for (var i = 0; i < questionsPrefere.length; i++){
+            copyQuestion[i] = questionsPrefere[i];
+        }
     }
+    
     let questionMax = parseInt(nbQuestion)
     let game = {
         gameId : gameId,
@@ -28,14 +36,15 @@ function createGame(gameId,userAdminSocket,nbQuestion){
         usersTrier : [],
         compteurVote : 0,
         question: copyQuestion,
-        userAdminSocket : userAdminSocket
+        userAdminSocket : userAdminSocket,
+        choixGame : choixJeux
         
 
     }
     console.log('Game ______   Admin  _____ Socket  : '+game.userAdminSocket)
     
     games.push(game)
-    getGame(gameId).currentQuestion = getQuestion(gameId).text
+    getGame(gameId).currentQuestion = getQuestion(gameId)
     console.log('les games :::: ')
     console.log(games)
 }

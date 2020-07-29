@@ -57,7 +57,7 @@ io.on('connection',(socket)=> {
         });
     })
 
-    socket.on('startGame',({id,nbQuestion})=>{
+    socket.on('startGame',({id,nbQuestion,choixJeux})=>{
         
         let user = getUser(socket.id);
         console.log('USERRR ROOMMM SERVEUR ')
@@ -66,12 +66,12 @@ io.on('connection',(socket)=> {
         room.inGame = true;
         console.log('idddddd :::::::: '+id)
         if(id === undefined){
-            createGame(user.room,socket.id,nbQuestion)
+            createGame(user.room,socket.id,nbQuestion,choixJeux)
         }
         else{
-            createGame(user.room,id,nbQuestion)
+            createGame(user.room,id,nbQuestion,choixJeux)
         }
-        io.to(user.room).emit('gameStarted')
+        io.to(user.room).emit('gameStarted',({choixJeux : choixJeux}))
     })
 
     socket.on('aVoter',({pinGamme,reponse}) => {
@@ -79,16 +79,26 @@ io.on('connection',(socket)=> {
         let game = getGame(pinGamme);
         let user = getUser(socket.id);
         user.aVoter = true;
-        let userVote = getUser(reponse);
-        userVote.voterPar.push(user.username)
-        userVote.nbDeVote++;
-        user.voteFor = userVote.username;
-        game.compteurVote++;
-        if(game.compteurVote == game.users.length){
-            setUserTrier(pinGamme);
-            io.to(pinGamme).emit('getUserTrier',{userTrier : game.usersTrier})
+        if(game.choixGame == 'game'){
+            let userVote = getUser(reponse);
+            userVote.voterPar.push(user.username)
+            userVote.nbDeVote++;
+            user.voteFor = userVote.username;
+            game.compteurVote++;
+            if(game.compteurVote == game.users.length){
+                setUserTrier(pinGamme);
+                io.to(pinGamme).emit('getUserTrier',{userTrier : game.usersTrier})
+            }
+            io.to(pinGamme).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(pinGamme),compteurQuestion : game.compteurQuestion});
+        }else{
+            user.voteFor = reponse;
+            game.compteurVote++;
+            io.to(pinGamme).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(pinGamme),compteurQuestion : game.compteurQuestion});
+
+
+
         }
-        io.to(pinGamme).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(pinGamme),compteurQuestion : game.compteurQuestion});
+        
 
     })
     socket.on('requetteGetRoom',(room)=>{
@@ -111,6 +121,7 @@ io.on('connection',(socket)=> {
     })
 
     socket.on('nextQuestion',(pinGamme)=>{
+        console.log('NextQuestion')
         let game = getGame(pinGamme);
         game.compteurQuestion++
         game.compteurVote = 0;
@@ -120,7 +131,7 @@ io.on('connection',(socket)=> {
             user.nbDeVote = 0;
             user.aVoter = false;
         })
-        game.CurrentQuestion = getQuestion(pinGamme).text;
+        game.CurrentQuestion = getQuestion(pinGamme);
         io.to(pinGamme).emit('getCurentQuestion',{CurrentQuestion : game.CurrentQuestion })
         io.to(pinGamme).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(pinGamme),compteurQuestion : game.compteurQuestion});
     })

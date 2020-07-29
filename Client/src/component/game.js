@@ -228,7 +228,7 @@ class Game extends Component {
 
         socket.on('getCurentQuestion', ({ CurrentQuestion }) => {
             console.log('QUESSSSSTION : ' + CurrentQuestion)
-            this.setQuestion(CurrentQuestion)
+            this.setQuestion(CurrentQuestion.text)
             this.setState({
                 aRepondu: false,
                 afficheResultat: false
