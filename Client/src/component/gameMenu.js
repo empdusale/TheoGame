@@ -3,6 +3,7 @@ import queryString from 'query-string'
 import io from 'socket.io-client'
 
 let socket;
+let roomi;
 
 
 
@@ -10,38 +11,48 @@ let socket;
 function GameMenu({location}){
 
     const[name,setName] = useState('');
-    const[room,setRoom] = useState('');
+    const[room,setRoom] = useState('test');
     const[users,setUsers] = useState([]);
     const[rooms,setRooms] = useState([]);
     const[user,setUser] = useState({});
     const[message,setMessage] = useState('');
     const[messageQuestion,setMessageQuestion] = useState('');
     const[id,setId] = useState('');
-    const[nbQuestion,setNbQuestion] = useState(null);
+    const[nbQuestion,setNbQuestion] = useState(10);
     const[compteur,setCompteur] = useState(0);
 
     const ENDPOINT = 'localhost:5000'
 
     useEffect(()=> {
-        var { name, room,id} = queryString.parse(location.search);
+        
 
         socket = io(ENDPOINT)
-        if(!room){
-        room = (Math.floor(Math.random() * 10000) + 10000).toString().substring(1);
-        console.log(room);
-        }
+        
         console.log('id :::::::: ',id)
         if(compteur == 0){
+            var { name,room,id} = queryString.parse(location.search);
+            console.log('Room requette = ')
             console.log('entrer dans compteur')
+            console.log('room = ' +room)
+            socket.emit('requetteGetRoom',(room));
+            setName(name);
             setId(id);
             setCompteur(1)
             console.log('compteur == '+compteur)
         }
+        socket.on('getroom',({roomId})=>{
+            console.log('ROOOM CLIENT')
+            console.log(roomId)
+            setRoom(roomId);
+            roomi = roomId
+            console.log('room state = '+roomi)
+            //console.log(roomi)
+            socket.emit('joinRoom',{name,roomi,id})
+        })
         
-        setName(name);
-        setRoom(room);
-        socket.emit('join',{name,room});
-        socket.emit('joinRoom',{name,room,id})
+        
+        //socket.emit('join',{name,room});
+        
         socket.on('UsersRoom',({room,users} )=>{
             console.log(users)
             setUsers(users);
@@ -61,10 +72,10 @@ function GameMenu({location}){
         socket.on('gameStarted',()=> {
             console.log('Game STTTTTTTTTTARRRRTTTTED IDD ::::::>>>>  : '+id)
             if(id == undefined){
-                window.location = `http://localhost:3000/game?name=${name}&pinGamme=${room}&id=${socket.id}`
+                window.location = `http://localhost:3000/game?name=${name}&pinGamme=${roomi}&id=${socket.id}`
             }
             else{
-                window.location = `http://localhost:3000/game?name=${name}&pinGamme=${room}&id=${id}`
+                window.location = `http://localhost:3000/game?name=${name}&pinGamme=${roomi}&id=${id}`
 
             }
         })
@@ -96,10 +107,15 @@ function GameMenu({location}){
                 </div>
                 <br/>
                 <h3>Nombre de question :</h3>
-                <input placeholder="nombre de Question" onChange={(event)=> setNbQuestion(event.target.value)}/>
+                <select name="nbQuestion" id="question-select" onChange={(event)=> setNbQuestion(event.target.value)}>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+                <option value="50">50</option>
+                </select>
+                <br/>
                 <p>{messageQuestion}</p>
-                
-                
                 <button onClick={() => startGame()} className="btn btn-primary" type="submit">Commencer le jeu</button>
                 <br/>
                 <br/>

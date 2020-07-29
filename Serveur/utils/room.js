@@ -5,6 +5,14 @@ function getAllRoom(){
     return rooms;
 }
 
+function getAllRoomId(){
+    res = [];
+    for(let i = 0;i<rooms.length;i++){
+        res[i] = rooms[i].roomId;
+    }
+    return res;
+}
+
 function getRoom(roomId){
     let room = rooms.find(room => room.roomId === roomId);
     return room;
@@ -60,5 +68,5 @@ function deletteUserToRoom(userId,roomId){
 
 
 module.exports = {
-    getAllRoom,addRoom,getUsersRoom,deletteRoom,addUserToRoom,getRoom,deletteUserToRoom
+    getAllRoom,addRoom,getUsersRoom,deletteRoom,addUserToRoom,getRoom,deletteUserToRoom,getAllRoomId
 }

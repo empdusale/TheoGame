@@ -2,7 +2,7 @@ const express = require('express')
 const http = require('http');
 const socketio = require('socket.io')
 const{addUser,getUser,deletteUser,getAllUser} = require('./utils/users')
-const{addUserToRoom,getUsersRoom, getAllRoom,deletteUserToRoom, getRoom,deletteRoom} =require('./utils/room')
+const{addUserToRoom,getUsersRoom, getAllRoom,deletteUserToRoom, getRoom,deletteRoom,getAllRoomId} =require('./utils/room')
 const{getQuestion, addUserToGame,getUsersGame,deletteUserToGame, getAllGames, getGame,setUserTrier,createGame} = require('./utils/game')
 const usersRoute = require('./route/users')
 const cors = require('cors');
@@ -24,13 +24,13 @@ io.on('connection',(socket)=> {
 
 
 
-    socket.on('joinRoom',({name,room,id}) => {
-        let user = addUser(socket.id,name,room)
-        addUserToRoom(user,room,id);
+    socket.on('joinRoom',({name,roomi,id}) => {
+        let user = addUser(socket.id,name,roomi)
+        addUserToRoom(user,roomi,id);
         console.log('Room : ')
         console.log(getAllUser());
         socket.join(user.room);
-        io.to(room).emit('UsersRoom',{room :user.room,
+        io.to(roomi).emit('UsersRoom',{room :user.room,
         users : getUsersRoom(user.room) });
 
 
@@ -60,6 +60,8 @@ io.on('connection',(socket)=> {
     socket.on('startGame',({id,nbQuestion})=>{
         
         let user = getUser(socket.id);
+        console.log('USERRR ROOMMM SERVEUR ')
+        console.log(user.room)
         let room = getRoom(user.room);
         room.inGame = true;
         console.log('idddddd :::::::: '+id)
@@ -88,6 +90,24 @@ io.on('connection',(socket)=> {
         }
         io.to(pinGamme).emit('compteurVote',{compteur : game.compteurVote,users : getUsersGame(pinGamme),compteurQuestion : game.compteurQuestion});
 
+    })
+    socket.on('requetteGetRoom',(room)=>{
+        let rooms = getAllRoomId();
+        console.log('les rooms !!!!!!!:::::: ')
+        console.log(rooms);
+        console.log('valeur de room : '+room)
+        if(room === null){
+            do{
+                roomId = (Math.floor(Math.random() * 10000) + 10000).toString().substring(1);
+                console.log('room boucle : ')
+                console.log(roomId);
+            }while(rooms.includes(roomId));
+            console.log('la room est : '+roomId)
+            socket.emit('getroom',({roomId : roomId}))
+        }
+        else{
+            socket.emit('getroom',({roomId : room}))
+        }
     })
 
     socket.on('nextQuestion',(pinGamme)=>{

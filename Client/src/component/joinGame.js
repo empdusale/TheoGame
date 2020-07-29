@@ -11,6 +11,7 @@ const JoinGame = ({location}) =>{
     const [room,setRoom] = useState('')
     const [name,setName] = useState('')
     const [rooms,setRooms] = useState([])
+    const [message,setMessage] = useState('')
 
     useEffect(() => {
         socket = io(ENDPOINT)
@@ -32,19 +33,24 @@ const JoinGame = ({location}) =>{
     },[room]);
 
 const existRoom= (roomid) => {
+    console.log('CureentRoom :: '+room)
     console.log('Rooms : ')
     console.log(rooms)
     console.log('Index : ')
     let roomTemp = []
-    rooms.map(room => roomTemp.push(room.roomId))
-    console.log('temps');
+    rooms.map(roomm => roomTemp.push(roomm))
+    console.log('Index');
     console.log(roomTemp);
-    console.log(rooms.map(function(e) { return e.hello; }).indexOf('stevie'));
+    
     if (roomTemp.indexOf(roomid) === -1 ){
-        
+        console.log('index == -1')
+        setMessage('la room n\'existe pas')
         return false
+   
     }
     else{
+        console.log('index == okkkkkkkkk')
+
         return true;
     }
 
@@ -59,8 +65,9 @@ return(
     <input placeholder="code" onChange={(event)=> setRoom(event.target.value)}/>
     <Link onClick={event => (existRoom(room)) ? null:  event.preventDefault() } to={`/gameMenu?name=${name}&room=${room}`}>
     <button type="submit" className="btn btn-primary">go</button>
-    
     </Link>
+    <br/>
+    <p>{message}</p>
     
     </div>
     

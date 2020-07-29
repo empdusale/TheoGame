@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const {getAllRoom} = require('../utils/room')
+const { getAllRoom, getAllRoomId } = require('../utils/room')
 
 
-router.get('/getRooms',(req,res) => {
-    let rooms = getAllRoom()
+router.get('/getRooms', (req, res) => {
+    let rooms = getAllRoomId()
     console.log(rooms);
     res.send(rooms)
 })
