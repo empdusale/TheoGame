@@ -93,12 +93,21 @@ function deletteUserToGame(userId,gameId){
 }
 
 function getQuestion(gameId){
+    
     let game = getGame(gameId)
     if(game.question.length <= 0){
         let copyQuestion = [];
-        for (var i = 0; i < questions.length; i++){
-            copyQuestion[i] = questions[i];
+        console.log('GAMMMEEE CHOIXXX :::: '+game.choixGame)
+        if(game.choixGame == 'game'){
+            for (var i = 0; i < questions.length; i++){
+                copyQuestion[i] = questions[i];
+            }
+        }else{
+            for (var i = 0; i < questionsPrefere.length; i++){
+                copyQuestion[i] = questionsPrefere[i];
+            }
         }
+        
         game.question = copyQuestion;
     }
     let nombre = Math.floor(Math.random() * (game.question.length-1 - 0 + 1)) + 0;

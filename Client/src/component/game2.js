@@ -13,7 +13,8 @@ class Game2 extends Component {
         this.setUsers = this.setUsers.bind(this);    
         this.changeQuestion = this.changeQuestion.bind(this)
         this.setQuestion = this.setQuestion.bind(this);
-        this.setResultat = this.setResultat.bind(this)
+        this.setResultat = this.setResultat.bind(this);
+        this.formatVoterPar = this.formatVoterPar.bind(this);
         
 
 
@@ -199,17 +200,20 @@ class Game2 extends Component {
 
     }
     
+    
     render() {     
         if (this.state.aRepondu === false) {
             return (
                 <div className="container">
                     <h3>Tu Prefere : </h3>
                     <br />
-                    <button type="button" className="btn btn-info" value={1} onClick={(e) => this.vote(e)} >  {this.state.question.q1}</button>
+                    <button type="button" className="btn btn-dark" value={1} onClick={(e) => this.vote(e)} >  {this.state.question.q1}</button>
+                    <br/>
                     <br/>
                     <h4>Ou</h4>
                     <br/>
-                    <button type="button" className="btn btn-info" value={2} onClick={(e) => this.vote(e)} >  {this.state.question.q2}</button>
+                    <button type="button" className="btn btn-dark" value={2} onClick={(e) => this.vote(e)} >  {this.state.question.q2}</button>
+                    <br/>
                     <br/>
                     <h3>Question {this.state.compteurQuestion}/{this.state.compteurQuestionMax}</h3>
                     </div>
@@ -224,59 +228,160 @@ class Game2 extends Component {
                 }
                 else if(this.state.boolResultat == true){
                     if(this.state.user.role == 'admin'){
-                        if(this.state.userQ1.length > this.state.userQ2.length){
-                            return(
-                                <div className='container'>
-                                <h3>Voici les resultat : </h3>
-                                <br/>
-                                <button type="button" className="btn btn-success">  {this.state.question.q1}</button>
-                                <h6>Nombre de vote : {this.state.userQ1.length}</h6>
-                                <br/>
-                                <h4>Ou</h4>
-                                <br/>
-                                <button type="button" className="btn btn-danger">  {this.state.question.q2}</button>
-                                <h6>Nombre de vote : {this.state.userQ2.length}</h6>
-                                <br/>
-                                <btn type="button" className="btn btn-warning" onClick={(e) => this.changeQuestion(e)} >Question Suivante</btn>
-                                </div>
-                            )
+                        if(this.state.compteurQuestion === this.state.compteurQuestionMax){
+                            if(this.state.userQ1.length > this.state.userQ2.length){
+                                return(
+                                    <div className='container'>
+                                    <h3>Voici les resultat : </h3>
+                                    <br/>
+                                    <div class="container">
+                                        
+                                        <div class="row">
+                                            <div class="col-sm-6" >
+                                            <button type="button" className="btn btn-success">  {this.state.question.q1}</button>
+                                            </div>
+                                        <div class="col-sm-6" >
+                                        <h5>  Nombre de vote : {this.state.userQ1.length}</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <h6>Choisie par : {this.formatVoterPar(this.state.userQ1)}</h6>
+                                    <br/>
+                                    
+                                    <h4>Ou</h4>
+                                    <br/>
+                                    <button type="button" className="btn btn-danger">  {this.state.question.q2}</button>
+                                    <h6>Nombre de vote : {this.state.userQ2.length}</h6>
+                                    <h6>Choisie par : {this.formatVoterPar(this.state.userQ2)}</h6>
+                                    <br/>
+                                    <br/>
+                                    
+                                    <btn type="button" className="btn btn-danger" onClick={(e) => this.goToRoom(e)} >Retour a la room</btn>
+                                    </div>
+                                )
+    
+                            }else if(this.state.userQ1.length < this.state.userQ2.length) {
+                                return(
+                                    <div className='container'>
+                                    <h3>Voici les resultat : </h3>
+                                    <br/>
+                                    <button type="button" className="btn btn-danger">  {this.state.question.q1}</button>
+                                    <h6>Nombre de vote : {this.state.userQ1.length}</h6>
+                                    <h6>Choisie par : {this.formatVoterPar(this.state.userQ1)}</h6>
+                                    <br/>
+                                    
+                                    <h4>Ou</h4>
+                                    <br/>
+                                    <button type="button" className="btn btn-success">  {this.state.question.q2}</button>
+                                    <h6>Nombre de vote : {this.state.userQ2.length}</h6>
+                                    <h6>Choisie par : {this.formatVoterPar(this.state.userQ2)}</h6>
+                                    <br/>
+                                    <br/>
+                                    <btn type="button" className="btn btn-danger" onClick={(e) => this.goToRoom(e)} >Retour a la room</btn>
+                                    </div>
+                                )
+    
+                            }else{
+                                return(
+                                    <div className='container'>
+                                    <h3>Voici les resultat : </h3>
+                                    <br/>
+                                    <button type="button" className="btn btn-warning">  {this.state.question.q1}</button>
+                                    <h6>Nombre de vote : {this.state.userQ1.length}</h6>
+                                    <h6>Choisie par : {this.formatVoterPar(this.state.userQ1)}</h6>
+                                    <br/>
+                                    
+                                    <h4>Ou</h4>
+                                    <br/>
+                                    <button type="button" className="btn btn-warning">  {this.state.question.q2}</button>
+                                    <h6>Nombre de vote : {this.state.userQ2.length}</h6>
+                                    <h6>Choisie par : {this.formatVoterPar(this.state.userQ2)}</h6>
+                                    <br/>
+                                    <br/>
+                                    <btn type="button" className="btn btn-danger" onClick={(e) => this.goToRoom(e)} >Retour a la room</btn>
+                                    </div>
+                                )
+    
+                            }
+    
 
-                        }else if(this.state.userQ1.length < this.state.userQ2.length) {
-                            return(
-                                <div className='container'>
-                                <h3>Voici les resultat : </h3>
-                                <br/>
-                                <button type="button" className="btn btn-danger">  {this.state.question.q1}</button>
-                                <h6>Nombre de vote : {this.state.userQ1.length}</h6>
-                                <br/>
-                                <h4>Ou</h4>
-                                <br/>
-                                <button type="button" className="btn btn-success">  {this.state.question.q2}</button>
-                                <h6>Nombre de vote : {this.state.userQ2.length}</h6>
-                                <br/>
-                                <btn type="button" className="btn btn-warning" onClick={(e) => this.changeQuestion(e)} >Question Suivante</btn>
-                                </div>
-                            )
+                        }
+                        else{
+                            if(this.state.userQ1.length > this.state.userQ2.length){
+                                return(
+                                    <div className='container'>
+                                    <h3>Voici les resultat : </h3>
+                                    <br/>
+                                    <button type="button" className="btn btn-success">  {this.state.question.q1}</button>                       
+                                    <h5>  Nombre de vote : {this.state.userQ1.length}</h5>  
+                                    <h6>Choisie par : {this.formatVoterPar(this.state.userQ1)}</h6>
+                                    <br/> 
+                                    <h4>Ou</h4>
+                                    <br/>
+                                    <button type="button" className="btn btn-danger">  {this.state.question.q2}</button>
+                                    <h6>Nombre de vote : {this.state.userQ2.length}</h6>
+                                    <h6>Choisie par : {this.formatVoterPar(this.state.userQ2)}</h6>
+                                    <br/>
+                                    <btn type="button" className="btn btn-warning" onClick={(e) => this.changeQuestion(e)} >Question Suivante</btn>
+                                    <br/>
+                                    <br/>
+                                        <btn type="button" className="btn btn-danger" onClick={(e) => this.boutonQuitter(e)} >Quitter</btn>
+                                    </div>
+                                )
+    
+                            }else if(this.state.userQ1.length < this.state.userQ2.length) {
+                                return(
+                                    <div className='container'>
+                                    <h3>Voici les resultat : </h3>
+                                    <br/>
+                                    <button type="button" className="btn btn-danger">  {this.state.question.q1}</button>
+                                    <h6>Nombre de vote : {this.state.userQ1.length}</h6>
+                                    <h6>Choisie par : {this.formatVoterPar(this.state.userQ1)}</h6>
+                                    <br/>
+                                    
+                                    <h4>Ou</h4>
+                                    <br/>
+                                    <button type="button" className="btn btn-success">  {this.state.question.q2}</button>
+                                    <h6>Nombre de vote : {this.state.userQ2.length}</h6>
+                                    <h6>Choisie par : {this.formatVoterPar(this.state.userQ2)}</h6>
+                                    <br/>
+                                    <btn type="button" className="btn btn-warning" onClick={(e) => this.changeQuestion(e)} >Question Suivante</btn>
+                                    <br/>
+                                    <br/>
+                                        <btn type="button" className="btn btn-danger" onClick={(e) => this.boutonQuitter(e)} >Quitter</btn>
+                                    </div>
+                                )
+    
+                            }else{
+                                return(
+                                    <div className='container'>
+                                    <h3>Voici les resultat : </h3>
+                                    <br/>
+                                    <button type="button" className="btn btn-warning">  {this.state.question.q1}</button>
+                                    <h6>Nombre de vote : {this.state.userQ1.length}</h6>
+                                    <h6>Choisie par : {this.formatVoterPar(this.state.userQ1)}</h6>
+                                    <br/>
+                                    
+                                    <h4>Ou</h4>
+                                    <br/>
+                                    <button type="button" className="btn btn-warning">  {this.state.question.q2}</button>
+                                    <h6>Nombre de vote : {this.state.userQ2.length}</h6>
+                                    <h6>Choisie par : {this.formatVoterPar(this.state.userQ2)}</h6>
+                                    <br/>
+                                    <btn type="button" className="btn btn-warning" onClick={(e) => this.changeQuestion(e)} >Question Suivante</btn>
+                                    <br/>
+                                    <br/>
+                                        <btn type="button" className="btn btn-danger" onClick={(e) => this.boutonQuitter(e)} >Quitter</btn>
+                                    </div>
+                                )
+    
+                            }
+    
 
-                        }else{
-                            return(
-                                <div className='container'>
-                                <h3>Voici les resultat : </h3>
-                                <br/>
-                                <button type="button" className="btn btn-warning">  {this.state.question.q1}</button>
-                                <h6>Nombre de vote : {this.state.userQ1.length}</h6>
-                                <br/>
-                                <h4>Ou</h4>
-                                <br/>
-                                <button type="button" className="btn btn-warning">  {this.state.question.q2}</button>
-                                <h6>Nombre de vote : {this.state.userQ2.length}</h6>
-                                <br/>
-                                <btn type="button" className="btn btn-warning" onClick={(e) => this.changeQuestion(e)} >Question Suivante</btn>
-                                </div>
-                            )
 
                         }
 
+                        
                     }else{
                         if(this.state.userQ1.length > this.state.userQ2.length){
                             return(
@@ -285,11 +390,18 @@ class Game2 extends Component {
                                 <br/>
                                 <button type="button" className="btn btn-success">  {this.state.question.q1}</button>
                                 <h6>Nombre de vote : {this.state.userQ1.length}</h6>
+                                <h6>Choisie par : {this.formatVoterPar(this.state.userQ1)}</h6>
+                                
                                 <br/>
+                                
                                 <h4>Ou</h4>
                                 <br/>
                                 <button type="button" className="btn btn-danger">  {this.state.question.q2}</button>
-                                <h6>Nombre de vote : {this.state.userQ2.length}</h6> 
+                                <h6>Nombre de vote : {this.state.userQ2.length}</h6>
+                                <h6>Choisie par : {this.formatVoterPar(this.state.userQ2)}</h6>
+                                <br/>
+                                <br/>
+                                        <btn type="button" className="btn btn-danger" onClick={(e) => this.boutonQuitter(e)} >Quitter</btn>
                                 </div>
                             )
 
@@ -300,11 +412,17 @@ class Game2 extends Component {
                                 <br/>
                                 <button type="button" className="btn btn-danger">  {this.state.question.q1}</button>
                                 <h6>Nombre de vote : {this.state.userQ1.length}</h6>
+                                <h6>Choisie par : {this.formatVoterPar(this.state.userQ1)}</h6>
                                 <br/>
+                                
                                 <h4>Ou</h4>
                                 <br/>
                                 <button type="button" className="btn btn-success">  {this.state.question.q2}</button>
-                                <h6>Nombre de vote : {this.state.userQ2.length}</h6> 
+                                <h6>Nombre de vote : {this.state.userQ2.length}</h6>
+                                <h6>Choisie par : {this.formatVoterPar(this.state.userQ2)}</h6> 
+                                <br/>
+                                <br/>
+                                        <btn type="button" className="btn btn-danger" onClick={(e) => this.boutonQuitter(e)} >Quitter</btn>
                                 </div>
                             )
                             
@@ -316,11 +434,17 @@ class Game2 extends Component {
                                 <br/>
                                 <button type="button" className="btn btn-warning">  {this.state.question.q1}</button>
                                 <h6>Nombre de vote : {this.state.userQ1.length}</h6>
+                                <h6>Choisie par : {this.formatVoterPar(this.state.userQ1)}</h6>
                                 <br/>
+                                
                                 <h4>Ou</h4>
                                 <br/>
                                 <button type="button" className="btn btn-warning">  {this.state.question.q2}</button>
                                 <h6>Nombre de vote : {this.state.userQ2.length}</h6> 
+                                <h6>Choisie par : {this.formatVoterPar(this.state.userQ2)}</h6>
+                                <br/>
+                                <br/>
+                                        <btn type="button" className="btn btn-danger" onClick={(e) => this.boutonQuitter(e)} >Quitter</btn>
                                 </div>
                             )
 

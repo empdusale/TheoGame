@@ -375,8 +375,8 @@ class Game extends Component {
                                         <br />
                                         <ul className="list-group" >{this.state.usersTrier.map(user =>
                                             <li className="list-group-item">
-                                                <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
-                                                <h4>a été voteé par : {this.formatVoterPar(user.voterPar)}</h4>
+                                                <button type="button" className="btn btn-dark" value={user.username} >  {user.username}</button>
+                                                <h4>a été voté par : {this.formatVoterPar(user.voterPar)}</h4>
                                             </li>
                                         )}
                                         </ul>
@@ -395,7 +395,7 @@ class Game extends Component {
                                         <ul className="list-group" >{this.state.usersTrier.map(user =>
                                             <li className="list-group-item">
                                                 <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
-                                                <h4>a été voteé par : {this.formatVoterPar(user.voterPar)}</h4>
+                                                <h4>a été voté par : {this.formatVoterPar(user.voterPar)}</h4>
                                             </li>
                                         )}
                                         </ul>
@@ -419,7 +419,7 @@ class Game extends Component {
                                     <ul className="list-group" >{this.state.usersTrier.map(user =>
                                         <li className="list-group-item">
                                             <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
-                                            <h4>a été voteé par : {this.formatVoterPar(user.voterPar)}</h4>
+                                            <h4>a été voté par : {this.formatVoterPar(user.voterPar)}</h4>
                                         </li>
                                     )}
                                     </ul>
@@ -513,7 +513,7 @@ class Game extends Component {
                                         <ul className="list-group" >{this.state.usersTrier.map(user =>
                                             <li className="list-group-item">
                                                 <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
-                                                <h4>a été voteé par : {this.formatVoterPar(user.voterPar)}</h4>
+                                                <h4>a été voté par : {this.formatVoterPar(user.voterPar)}</h4>
                                             </li>
                                         )}
                                         </ul>
@@ -532,7 +532,7 @@ class Game extends Component {
                                         <ul className="list-group" >{this.state.usersTrier.map(user =>
                                             <li className="list-group-item">
                                                 <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
-                                                <h4>a été voteé par : {this.formatVoterPar(user.voterPar)}</h4>
+                                                <h4>a été voté par : {this.formatVoterPar(user.voterPar)}</h4>
                                             </li>
                                         )}
                                         </ul>
@@ -556,7 +556,7 @@ class Game extends Component {
                                     <ul className="list-group" >{this.state.usersTrier.map(user =>
                                         <li className="list-group-item">
                                             <button type="button" className="btn btn-info" value={user.username} >  {user.username}</button>
-                                            <h4>a été voteé par : {this.formatVoterPar(user.voterPar)}</h4>
+                                            <h4>a été voté par : {this.formatVoterPar(user.voterPar)}</h4>
                                         </li>
                                     )}
                                     </ul>
